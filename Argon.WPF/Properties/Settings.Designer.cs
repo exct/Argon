@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Argon.Properties
+namespace Argon.WPF.Properties
 {
 
 
