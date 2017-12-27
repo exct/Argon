@@ -145,7 +145,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ETWMonitor.cs" />
+    <Compile Include="EtwMonitor.cs" />
     <Compile Include="Processes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

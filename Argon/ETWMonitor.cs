@@ -29,6 +29,7 @@ namespace Argon
         {
             timer.Elapsed += WriteNetTrafficToDb;
             timer.Start();
+            Processes.GetCurrentProcesses();
             Task.Run(() => StartEtwSession());
         }
 
@@ -42,72 +43,201 @@ namespace Argon
                                                     | KernelTraceEventParser.Keywords.Process
                                                     | KernelTraceEventParser.Keywords.ProcessCounters);
 
+                    //Process Start/Stops
                     EtwSession.Source.Kernel.ProcessStart += data => { Processes.GetCurrentProcesses(); };
                     EtwSession.Source.Kernel.ProcessStop += data => { Processes.GetCurrentProcesses(); };
 
-
+                    //Network traffic
                     EtwSession.Source.Kernel.TcpIpRecv += data =>
                     {
-                        lock (NetworkTrafficList)
-                            NetworkTrafficList.Add(new NetworkTraffic
-                            {
-                                FilePath = Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
-                                Time = data.TimeStamp.Ticks.NextSecond(),
-                                Process = data.ProcessName,
-                                Sent = 0,
-                                Recv = data.size,
-                                LocalAddr = data.saddr.ToString(),
-                                LocalPort = data.sport.ToString(),
-                                RemoteAddr = data.daddr.ToString(),
-                                RemotePort = data.dport.ToString()
-                            });
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = 0,
+                                        Recv = data.size,
+                                        DestAddr = data.saddr.ToString(),
+                                        DestPort = data.sport.ToString(),
+                                        SourceAddr = data.daddr.ToString(),
+                                        SourcePort = data.dport.ToString(),
+                                        Type = "T4R"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.TcpIpSend += data =>
                     {
-                        lock (NetworkTrafficList)
-                            NetworkTrafficList.Add(new NetworkTraffic
-                            {
-                                FilePath = Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
-                                Time = data.TimeStamp.Ticks.NextSecond(),
-                                Process = data.ProcessName,
-                                Sent = data.size,
-                                Recv = 0,
-                                LocalAddr = data.saddr.ToString(),
-                                LocalPort = data.sport.ToString(),
-                                RemoteAddr = data.daddr.ToString(),
-                                RemotePort = data.dport.ToString()
-                            });
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = data.size,
+                                        Recv = 0,
+                                        SourceAddr = data.saddr.ToString(),
+                                        SourcePort = data.sport.ToString(),
+                                        DestAddr = data.daddr.ToString(),
+                                        DestPort = data.dport.ToString(),
+                                        Type = "T4S"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.TcpIpRecvIPV6 += data =>
                     {
-
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = 0,
+                                        Recv = data.size,
+                                        DestAddr = data.saddr.ToString(),
+                                        DestPort = data.sport.ToString(),
+                                        SourceAddr = data.daddr.ToString(),
+                                        SourcePort = data.dport.ToString(),
+                                        Type = "T6R"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.TcpIpSendIPV6 += data =>
                     {
-
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = data.size,
+                                        Recv = 0,
+                                        SourceAddr = data.saddr.ToString(),
+                                        SourcePort = data.sport.ToString(),
+                                        DestAddr = data.daddr.ToString(),
+                                        DestPort = data.dport.ToString(),
+                                        Type = "T6S"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpRecv += data =>
                     {
-
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                            Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = 0,
+                                        Recv = data.size,
+                                        DestAddr = data.saddr.ToString(),
+                                        DestPort = data.sport.ToString(),
+                                        SourceAddr = data.daddr.ToString(),
+                                        SourcePort = data.dport.ToString(),
+                                        Type = "U4R"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpSend += data =>
                     {
-
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = data.size,
+                                        Recv = 0,
+                                        SourceAddr = data.saddr.ToString(),
+                                        SourcePort = data.sport.ToString(),
+                                        DestAddr = data.daddr.ToString(),
+                                        DestPort = data.dport.ToString(),
+                                        Type = "U4S"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpRecvIPV6 += data =>
                     {
-
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = 0,
+                                        Recv = data.size,
+                                        DestAddr = data.saddr.ToString(),
+                                        DestPort = data.sport.ToString(),
+                                        SourceAddr = data.daddr.ToString(),
+                                        SourcePort = data.dport.ToString(),
+                                        Type = "U6R"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpSendIPV6 += data =>
                     {
-
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessList)
+                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        Sent = data.size,
+                                        Recv = 0,
+                                        SourceAddr = data.saddr.ToString(),
+                                        SourcePort = data.sport.ToString(),
+                                        DestAddr = data.daddr.ToString(),
+                                        DestPort = data.dport.ToString(),
+                                        Type = "U6S"
+                                    });
+                        }
+                        catch { }
                     };
 
                     EtwSession.Source.Process();

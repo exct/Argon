@@ -10,7 +10,8 @@ namespace Argon
 
         public static void GetCurrentProcesses()
         {
-            ProcessList = Process.GetProcesses().ToList();
+            lock (ProcessList)
+                ProcessList = Process.GetProcesses().ToList();
         }
 
     }

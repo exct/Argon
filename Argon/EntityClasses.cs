@@ -30,17 +30,20 @@ namespace Argon
         [Column(Name = "Recv"), NotNull]
         public int Recv { get; set; }
 
-        [Column(Name = "LocalAddr"), NotNull]
-        public string LocalAddr { get; set; }
+        [Column(Name = "SourceAddr"), NotNull]
+        public string SourceAddr { get; set; }
 
-        [Column(Name = "LocalPort"), NotNull]
-        public string LocalPort { get; set; }
+        [Column(Name = "SourcePort"), NotNull]
+        public string SourcePort { get; set; }
 
-        [Column(Name = "RemoteAddr"), NotNull]
-        public string RemoteAddr { get; set; }
+        [Column(Name = "DestAddr"), NotNull]
+        public string DestAddr { get; set; }
 
-        [Column(Name = "RemotePort"), NotNull]
-        public string RemotePort { get; set; }
+        [Column(Name = "DestPort"), NotNull]
+        public string DestPort { get; set; }
+
+        [Column(Name = "Type"), NotNull]
+        public string Type { get; set; }
     }
 
     public class _Process
