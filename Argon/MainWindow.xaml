@@ -1,0 +1,77 @@
+﻿<Controls:MetroWindow x:Class="Argon.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:local="clr-namespace:Argon"
+                      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                      xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+                      mc:Ignorable="d"
+                      Title="MainWindow" 
+                      Height="600" 
+                      Width="1000" 
+                      WindowStartupLocation="CenterScreen"
+                      GlowBrush="{DynamicResource AccentColorBrush}">
+
+
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Content="settings" />
+            <Button>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="20"
+                   Height="20"
+                   Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_cupcake}" />
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <TextBlock Margin="4 0 0 0"
+                   VerticalAlignment="Center"
+                   Text="deploy cupcakes" />
+                </StackPanel>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" Grid.Row="0">
+            <Controls:MetroAnimatedSingleRowTabControl.Resources>
+                <Style TargetType="{x:Type TabPanel}">
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                </Style>
+            </Controls:MetroAnimatedSingleRowTabControl.Resources>
+            <TabItem Height="50">
+                <TabItem.Header>
+                    <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center"/>
+                </TabItem.Header>
+                <local:Graph></local:Graph>
+            </TabItem>
+            <TabItem Height="50">
+                <TabItem.Header>
+                    <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" VerticalAlignment="Center"/>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem Height="50">
+                <TabItem.Header>
+                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" VerticalAlignment="Center"/>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem Height="50">
+                <TabItem.Header>
+                    <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" VerticalAlignment="Center"/>
+                </TabItem.Header>
+            </TabItem>
+        </Controls:MetroAnimatedSingleRowTabControl>
+    </Grid>
+
+
+</Controls:MetroWindow>
