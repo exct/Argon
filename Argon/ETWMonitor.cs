@@ -7,13 +7,16 @@ using System.Windows;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using LinqToDB;
+using System.Management;
+using System.Diagnostics;
 
 namespace Argon
 {
     public sealed class EtwMonitor : IDisposable
     {
         Timer timer = new Timer(1000);
-        public List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
+        private List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
+        private Dictionary<int, string> Services = new Dictionary<int, string>();
         private TraceEventSession EtwSession;
 
         private EtwMonitor() { }
@@ -29,6 +32,7 @@ namespace Argon
         {
             timer.Elapsed += WriteNetTrafficToDb;
             timer.Start();
+            GetServices();
             Processes.GetCurrentProcesses();
             Task.Run(() => StartEtwSession());
         }
@@ -43,11 +47,8 @@ namespace Argon
                                                     | KernelTraceEventParser.Keywords.Process
                                                     | KernelTraceEventParser.Keywords.ProcessCounters);
 
-                    //Process Start/Stops
                     EtwSession.Source.Kernel.ProcessStart += data => { Processes.GetCurrentProcesses(); };
-                    EtwSession.Source.Kernel.ProcessStop += data => { Processes.GetCurrentProcesses(); };
 
-                    //Network traffic
                     EtwSession.Source.Kernel.TcpIpRecv += data =>
                     {
                         try
@@ -58,7 +59,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = 0,
                                         Recv = data.size,
@@ -82,7 +83,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = data.size,
                                         Recv = 0,
@@ -106,7 +107,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = 0,
                                         Recv = data.size,
@@ -130,7 +131,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = data.size,
                                         Recv = 0,
@@ -154,8 +155,8 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
-                                            Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
+                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -178,7 +179,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = data.size,
                                         Recv = 0,
@@ -202,7 +203,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = 0,
                                         Recv = data.size,
@@ -226,7 +227,7 @@ namespace Argon
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = data.ProcessID == 0 || data.ProcessID == 4 ? "System" :
+                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
                                         Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
                                         Sent = data.size,
                                         Recv = 0,
@@ -248,6 +249,31 @@ namespace Argon
                 MessageBox.Show("ETW monitoring session failure.");
                 throw (e);
             }
+        }
+
+        private string GetServiceName(int PID)
+        {
+            try
+            {
+                lock (Services)
+                    return Services.Where(x => x.Key == PID).Select(x => x.Value).First();
+            }
+            catch
+            {
+                GetServices();
+                lock (Services)
+                    return Services.Where(x => x.Key == PID).Select(x => x.Value).First();
+            };
+        }
+
+        private void GetServices()
+        {
+            ManagementClass mgmtClass = new ManagementClass("Win32_Process");
+            lock (Services)
+                foreach (ManagementObject process in mgmtClass.GetInstances())
+                    if (process["Name"].ToString() == "svchost.exe")
+                        Services.Add(Convert.ToInt32(process["ProcessId"]), 
+                            process["CommandLine"] == null ? "" : process["CommandLine"].ToString());
         }
 
         public void WriteNetTrafficToDb(object sender, System.Timers.ElapsedEventArgs e)
@@ -274,5 +300,6 @@ namespace Argon
         {
             EtwSession?.Dispose();
         }
+
     }
 }
