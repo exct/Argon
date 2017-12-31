@@ -8,5 +8,6 @@ namespace Argon
         {
             return (long)Math.Ceiling((decimal)i / 10000000) * 10000000;
         }
+
     }
 }

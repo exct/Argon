@@ -46,13 +46,13 @@ namespace Argon
         public string Type { get; set; }
     }
 
-    public class _Process
+    public class ProcessCounters
     {
         [Column(Name = "PID"), NotNull]
-        public int PID { get; set; }
+        public int Name { get; set; }
 
         [Column(Name = "Name"), NotNull]
-        public string Name { get; set; }
+        public string CpuPercent { get; set; }
 
         [Column(Name = "Path"), NotNull]
         public string Path { get; set; }

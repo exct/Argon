@@ -1,66 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Timers;
-using System.Linq;
-using System.Windows;
+﻿using LinqToDB;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
-using LinqToDB;
-using System.Management;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Argon
 {
-    public sealed class EtwMonitor : IDisposable
+    public static class EtwMonitor
     {
-        Timer timer = new Timer(1000);
-        private List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
-        private Dictionary<int, string> Services = new Dictionary<int, string>();
-        private TraceEventSession EtwSession;
+        static TraceEventSession EtwSession;
+        static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
+        private static System.Timers.Timer timer = new System.Timers.Timer(1000);
+        private static int Failed = 0;
 
-        private EtwMonitor() { }
-
-        public static EtwMonitor Create()
-        {
-            var mon = new EtwMonitor();
-            mon.Initialise();
-            return mon;
-        }
-
-        private void Initialise()
+        public static void Initialize()
         {
             timer.Elapsed += WriteNetTrafficToDb;
             timer.Start();
-            GetServices();
-            Processes.GetCurrentProcesses();
             Task.Run(() => StartEtwSession());
         }
 
-        private void StartEtwSession()
+        static void StartEtwSession()
         {
             try
             {
                 using (EtwSession = new TraceEventSession("ArgonTraceEventSession"))
                 {
-                    EtwSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP
-                                                    | KernelTraceEventParser.Keywords.Process
-                                                    | KernelTraceEventParser.Keywords.ProcessCounters);
+                    EtwSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP |
+                                                    KernelTraceEventParser.Keywords.Process);
 
-                    EtwSession.Source.Kernel.ProcessStart += data => { Processes.GetCurrentProcesses(); };
+                    EtwSession.Source.Kernel.ProcessStart += data =>
+                    {
+                        lock (Processes.NewProcesses)
+                            Processes.NewProcesses.Add(data.ProcessID);
+                    };
+
+                    EtwSession.Source.Kernel.ProcessStop += data =>
+                    {
+                        lock (Processes.NewProcesses)
+                            Processes.NewProcesses.RemoveAll(x => x == data.ProcessID);
+                        lock (Processes.ProcessDataList)
+                            Processes.ProcessDataList.RemoveAll(p => p.ID == data.ProcessID);
+                    };
 
                     EtwSession.Source.Kernel.TcpIpRecv += data =>
                     {
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -78,13 +75,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = data.size,
                                         Recv = 0,
                                         SourceAddr = data.saddr.ToString(),
@@ -102,13 +98,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -126,13 +121,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = data.size,
                                         Recv = 0,
                                         SourceAddr = data.saddr.ToString(),
@@ -150,13 +144,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -174,13 +167,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = data.size,
                                         Recv = 0,
                                         SourceAddr = data.saddr.ToString(),
@@ -198,13 +190,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -222,13 +213,12 @@ namespace Argon
                         try
                         {
                             lock (NetworkTrafficList)
-                                lock (Processes.ProcessList)
+                                lock (Processes.ProcessDataList)
                                     NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = (data.ProcessID == 0 || data.ProcessID == 4) ? "System" : (data.ProcessName == "svchost") ? GetServiceName(data.ProcessID) :
-                                        Processes.ProcessList.Where(p => p.Id == data.ProcessID).Select(p => p.MainModule.FileName).First(),
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = data.size,
                                         Recv = 0,
                                         SourceAddr = data.saddr.ToString(),
@@ -244,39 +234,19 @@ namespace Argon
                     EtwSession.Source.Process();
                 }
             }
-            catch (Exception e)
-            {
-                MessageBox.Show("ETW monitoring session failure.");
-                throw (e);
-            }
-        }
-
-        private string GetServiceName(int PID)
-        {
-            try
-            {
-                lock (Services)
-                    return Services.Where(x => x.Key == PID).Select(x => x.Value).First();
-            }
             catch
             {
-                GetServices();
-                lock (Services)
-                    return Services.Where(x => x.Key == PID).Select(x => x.Value).First();
-            };
+                if (++Failed > 3)
+                    throw;
+                else
+                {
+                    Thread.Sleep(1000);
+                    Initialize();
+                }
+            }
         }
 
-        private void GetServices()
-        {
-            ManagementClass mgmtClass = new ManagementClass("Win32_Process");
-            lock (Services)
-                foreach (ManagementObject process in mgmtClass.GetInstances())
-                    if (process["Name"].ToString() == "svchost.exe")
-                        Services.Add(Convert.ToInt32(process["ProcessId"]), 
-                            process["CommandLine"] == null ? "" : process["CommandLine"].ToString());
-        }
-
-        public void WriteNetTrafficToDb(object sender, System.Timers.ElapsedEventArgs e)
+        static void WriteNetTrafficToDb(object sender, System.Timers.ElapsedEventArgs e)
         {
             lock (NetworkTrafficList)
             {
@@ -294,11 +264,6 @@ namespace Argon
                     }
                 NetworkTrafficList.Clear();
             }
-        }
-
-        public void Dispose()
-        {
-            EtwSession?.Dispose();
         }
 
     }
