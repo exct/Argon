@@ -1,13 +1,4 @@
-﻿using LinqToDB;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Security;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Argon
 {
@@ -19,8 +10,7 @@ namespace Argon
     {
         void App_Startup(object sender, StartupEventArgs e)
         {
-            Processes.Initialize();
-            EtwMonitor.Initialize();
+            Controller.Initialize();
 
             //MainWindow mainWindow = new MainWindow();
             //mainWindow.Show();

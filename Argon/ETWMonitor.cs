@@ -1,26 +1,19 @@
 ﻿using LinqToDB;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Argon
 {
-    public static class EtwMonitor
+    public sealed class EtwMonitor
     {
         static TraceEventSession EtwSession;
-        static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
-        private static System.Timers.Timer timer = new System.Timers.Timer(1000);
         private static int Failed = 0;
 
         public static void Initialize()
         {
-            timer.Elapsed += WriteNetTrafficToDb;
-            timer.Start();
             Task.Run(() => StartEtwSession());
         }
 
@@ -35,30 +28,32 @@ namespace Argon
 
                     EtwSession.Source.Kernel.ProcessStart += data =>
                     {
-                        lock (Processes.NewProcesses)
-                            Processes.NewProcesses.Add(data.ProcessID);
+                        lock (Controller.NewProcesses)
+                            Controller.NewProcesses.Add(data.ProcessID);
                     };
 
                     EtwSession.Source.Kernel.ProcessStop += data =>
                     {
-                        lock (Processes.NewProcesses)
-                            Processes.NewProcesses.RemoveAll(x => x == data.ProcessID);
-                        lock (Processes.ProcessDataList)
-                            Processes.ProcessDataList.RemoveAll(p => p.ID == data.ProcessID);
+                        lock (Controller.NewProcesses)
+                            Controller.NewProcesses.RemoveAll(x => x == data.ProcessID);
+                        lock (Controller.ProcessDataList)
+                            Controller.ProcessDataList.RemoveAll(p => p.ID == data.ProcessID);
+                        lock (Controller.Services)
+                            Controller.Services.TryRemove(data.ProcessID, out string x);
                     };
 
                     EtwSession.Source.Kernel.TcpIpSend += data =>
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
                                             Process = data.ProcessName,
-                                            FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                             Sent = data.size,
                                             Recv = 0,
                                             SourceAddr = data.saddr.ToString(),
@@ -68,7 +63,7 @@ namespace Argon
                                             Type = 1
                                         });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Sent += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Sent += data.size;
                         }
                         catch { }
                     };
@@ -77,15 +72,15 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
                                     {
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
                                             Process = data.ProcessName,
-                                            FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                             Sent = 0,
                                             Recv = data.size,
                                             DestAddr = data.saddr.ToString(),
@@ -96,7 +91,7 @@ namespace Argon
                                         });
                                     }
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Recv += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -105,14 +100,14 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
                                             Process = data.ProcessName,
-                                            FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                             Sent = data.size,
                                             Recv = 0,
                                             SourceAddr = data.saddr.ToString(),
@@ -122,7 +117,7 @@ namespace Argon
                                             Type = 2
                                         });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Sent += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Sent += data.size;
                         }
                         catch { }
                     };
@@ -131,14 +126,14 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -148,7 +143,7 @@ namespace Argon
                                         Type = 2
                                     });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Recv += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -157,14 +152,14 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = data.size,
                                         Recv = 0,
                                         SourceAddr = data.saddr.ToString(),
@@ -174,7 +169,7 @@ namespace Argon
                                         Type = 3
                                     });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Sent += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Sent += data.size;
                         }
                         catch { }
                     };
@@ -183,14 +178,14 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -200,7 +195,7 @@ namespace Argon
                                         Type = 3
                                     });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Recv += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -209,14 +204,14 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = data.size,
                                         Recv = 0,
                                         SourceAddr = data.saddr.ToString(),
@@ -226,7 +221,7 @@ namespace Argon
                                         Type = 4
                                     });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Sent += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Sent += data.size;
                         }
                         catch { }
                     };
@@ -235,14 +230,14 @@ namespace Argon
                     {
                         try
                         {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
-                                        NetworkTrafficList.Add(new NetworkTraffic
+                            lock (Controller.NetworkTrafficList)
+                                lock (Controller.ProcessDataList)
+                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
+                                        Controller.NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
                                         Sent = 0,
                                         Recv = data.size,
                                         DestAddr = data.saddr.ToString(),
@@ -252,7 +247,7 @@ namespace Argon
                                         Type = 4
                                     });
                                     else
-                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Recv += data.size;
+                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -271,26 +266,5 @@ namespace Argon
                 }
             }
         }
-
-        static void WriteNetTrafficToDb(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            lock (NetworkTrafficList)
-            {
-                using (var db = new ArgonDB())
-                    try
-                    {
-                        db.BeginTransaction();
-                        foreach (NetworkTraffic n in NetworkTrafficList)
-                            db.Insert(n);
-                        db.CommitTransaction();
-                    }
-                    catch
-                    {
-                        db.RollbackTransaction();
-                    }
-                NetworkTrafficList.Clear();
-            }
-        }
-
     }
 }

@@ -1,46 +1,50 @@
-﻿using System;
+﻿using LinqToDB;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Timers;
 using System.Management;
-using LinqToDB;
+using System.Timers;
 
 namespace Argon
 {
-    public static class Processes
+    public sealed class Controller
     {
+        public static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
         public static List<ProcessData> ProcessDataList = new List<ProcessData>();
         public static List<int> NewProcesses = new List<int>();
-        static List<Process> ProcessList = new List<Process>();
-        static Dictionary<int, string> Services = new Dictionary<int, string>();
-        static Timer timer = new Timer(1000);
-        static decimal TotalCpuLoadPct = 0;
-        static long TotalCpuTime = 0;
-        static ManagementClass mgmtClass = new ManagementClass("Win32_Process");
-        static long CurrentTime;
-
-        public static void Initialize()
-        {
-            TotalCpuLoadCounter.NextValue();
-            GetServices();
-            GetCurrentProcesses();
-            InitProcessDataList();
-            timer.Elapsed += Timer_Elapsed;
-            timer.Start();
-        }
-
+        public static ConcurrentDictionary<int, string> Services = new ConcurrentDictionary<int, string>();
         static PerformanceCounter TotalCpuLoadCounter = new PerformanceCounter()
         {
             CategoryName = "Processor",
             CounterName = "% Processor Time",
             InstanceName = "_Total"
         };
+        static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
+        static List<Process> ProcessList = new List<Process>();
+        static Timer timer = new Timer(1000);
+        static decimal TotalCpuLoadPct = 0;
+        static long TotalCpuTime = 0;
+        static long CurrentTime;
+
+        public static void Initialize()
+        {
+            Process.EnterDebugMode();
+            TotalCpuLoadCounter.NextValue();
+            GetServices();
+            GetCurrentProcesses();
+            InitProcessDataList();
+            EtwMonitor.Initialize();
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
+        }
+
 
         static void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             GetProcessesUsage();
-            WriteProcDataToDb();
+            WriteToDb();
         }
 
         static void GetCurrentProcesses()
@@ -49,36 +53,20 @@ namespace Argon
                 ProcessList = Process.GetProcesses().ToList();
         }
 
-        static void GetServices()
+        static ConcurrentDictionary<int, string> GetServices()
         {
             lock (Services)
                 Services.Clear();
-            foreach (ManagementObject process in mgmtClass.GetInstances())
-                if (process["Name"].ToString() == "svchost.exe")
-                    Services.Add(Convert.ToInt32(process["ProcessId"]),
-                                 process["CommandLine"] == null ? "" : process["CommandLine"].ToString());
+            foreach (ManagementObject service in mgmtClass.GetInstances())
+                Services.TryAdd(Convert.ToInt32(service["ProcessId"]), service["DisplayName"]?.ToString());
+            return Services;
         }
 
         static string GetServiceName(int PID)
         {
-            try
-            {
-                lock (Services)
-                    return Services.Where(x => x.Key == PID).Select(x => x.Value).First();
-            }
-            catch //refresh Services list if fail on first attempt
-            {
-                GetServices();
-                try
-                {
-                    lock (Services)
-                        return Services.Where(x => x.Key == PID).Select(x => x.Value).First();
-                }
-                catch //fail to obtain file path
-                {
-                    return "";
-                }
-            };
+            lock (Services)
+                return Services.Where(x => x.Key == PID).Select(x => x.Value).FirstOrDefault() ?? //if null, call GetServices
+                    GetServices().Where(x => x.Key == PID).Select(x => x.Value).FirstOrDefault();
         }
 
         static void InitProcessDataList()
@@ -112,11 +100,19 @@ namespace Argon
             if (p.Id == 0) return;
             try
             {
+                if (p.HasExited) return;
                 ProcessDataList.Add(new ProcessData
                 {
                     ID = p.Id,
-                    Name = p.ProcessName,
-                    Path = p.ProcessName == "svchost" ? GetServiceName(p.Id) : ProcessList.Where(x => x.Id == p.Id).Select(x => x.MainModule.FileName).First(),
+                    Name = p.ProcessName == "svchost" ?
+                            (GetServiceName(p.Id) ??
+                                (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
+                                    (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
+                                        p.ProcessName : p.MainModule.FileVersionInfo.ProductName) : p.MainModule.FileVersionInfo.FileDescription)) :
+                            String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
+                                (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
+                                    p.ProcessName : p.MainModule.FileVersionInfo.ProductName) : p.MainModule.FileVersionInfo.FileDescription,
+                    Path = p.MainModule.FileName, //p.ProcessName == "svchost" ? (GetServiceName(p.Id) ?? p.MainModule.FileName) : 
                     ProcessorTime = p.TotalProcessorTime.Ticks,
                     ProcessorTimeDiff = 0,
                     ProcessorLoadPercent = 0,
@@ -128,8 +124,7 @@ namespace Argon
                 ProcessDataList.Add(new ProcessData
                 {
                     ID = p.Id,
-                    Name = p.ProcessName,
-                    Path = p.Id == 4 ? "System" :
+                    Name = p.Id == 4 ? "System" :
                            p.ProcessName == "smss" ? "Session Manager Subsystem" :
                            p.ProcessName == "services" ? "Services Control Manager" :
                            p.ProcessName == "NisSrv" ? "Microsoft Network Realtime Inspection Service" :
@@ -138,6 +133,7 @@ namespace Argon
                            p.ProcessName == "wininit" ? "Windows Initialization Process" :
                            p.ProcessName == "SecurityHealthService" ? "Windows Defender Security Center Service" :
                            p.ProcessName,
+                    Path = p.ProcessName,
                     ProcessorTime = p.TotalProcessorTime.Ticks,
                     ProcessorTimeDiff = 0,
                     ProcessorLoadPercent = 0,
@@ -181,14 +177,13 @@ namespace Argon
             }
         }
 
-        static void WriteProcDataToDb()
+        static void WriteToDb()
         {
-            lock (ProcessDataList)
-            {
-                using (var db = new ArgonDB())
-                    try
-                    {
-                        db.BeginTransaction();
+            using (var db = new ArgonDB())
+                try
+                {
+                    db.BeginTransaction();
+                    lock (ProcessDataList)
                         foreach (ProcessData p in ProcessDataList)
                             if (p.ProcessorLoadPercent != 0)
                                 db.Insert(new ProcessCounters
@@ -198,14 +193,15 @@ namespace Argon
                                     Path = p.Path,
                                     ProcessorLoadPercent = p.ProcessorLoadPercent
                                 });
-                        db.CommitTransaction();
-                    }
-                    catch
+                    lock (NetworkTrafficList)
                     {
-                        db.RollbackTransaction();
+                        foreach (NetworkTraffic n in NetworkTrafficList)
+                            db.Insert(n);
+                        NetworkTrafficList.Clear();
                     }
-            }
-
+                    db.CommitTransaction();
+                }
+                catch { db.RollbackTransaction(); }
         }
 
         public class ProcessData
