@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using System.Management;
+using LinqToDB;
 
 namespace Argon
 {
@@ -17,6 +18,8 @@ namespace Argon
         static decimal TotalCpuLoadPct = 0;
         static long TotalCpuTime = 0;
         static ManagementClass mgmtClass = new ManagementClass("Win32_Process");
+        static long CurrentTime;
+
         public static void Initialize()
         {
             TotalCpuLoadCounter.NextValue();
@@ -80,8 +83,8 @@ namespace Argon
 
         static void InitProcessDataList()
         {
-            lock (ProcessList)
-                lock (ProcessDataList)
+            lock (ProcessDataList)
+                lock (ProcessList)
                     foreach (Process p in ProcessList)
                         AddToProcessDataList(p);
         }
@@ -92,8 +95,8 @@ namespace Argon
             lock (NewProcesses)
             {
                 if (NewProcesses.Count() > 1)
-                    lock (ProcessList)
-                        lock (ProcessDataList)
+                    lock (ProcessDataList)
+                        lock (ProcessList)
                             foreach (int i in NewProcesses)
                             {
                                 var p = ProcessList.Where(x => x.Id == i).FirstOrDefault();
@@ -116,8 +119,8 @@ namespace Argon
                     Path = p.ProcessName == "svchost" ? GetServiceName(p.Id) : ProcessList.Where(x => x.Id == p.Id).Select(x => x.MainModule.FileName).First(),
                     ProcessorTime = p.TotalProcessorTime.Ticks,
                     ProcessorTimeDiff = 0,
-                    ProcessorUsagePercent = 0,
-                    IsSystem = p.ProcessName == "svchost" ? true : false
+                    ProcessorLoadPercent = 0,
+                    IsProtected = p.ProcessName == "svchost" ? true : false
                 });
             }
             catch (System.ComponentModel.Win32Exception)
@@ -137,8 +140,8 @@ namespace Argon
                            p.ProcessName,
                     ProcessorTime = p.TotalProcessorTime.Ticks,
                     ProcessorTimeDiff = 0,
-                    ProcessorUsagePercent = 0,
-                    IsSystem = true
+                    ProcessorLoadPercent = 0,
+                    IsProtected = true
                 });
             }
             catch { }
@@ -149,47 +152,72 @@ namespace Argon
             UpdateProcessDataList();
             TotalCpuTime = 0;
             TotalCpuLoadPct = (decimal)TotalCpuLoadCounter.NextValue();
+            CurrentTime = DateTime.Now.Ticks.NextSecond();
 
-            lock (ProcessList)
-                lock (ProcessDataList)
+            lock (ProcessDataList)
+            {
+                lock (ProcessList)
                     foreach (Process p in ProcessList)
                     {
-                        if (p.Id == 0) continue;
                         var proc = ProcessDataList.Where(x => x.ID == p.Id).FirstOrDefault();
                         if (proc == null)
                             AddToProcessDataList(p);
                         else
                         {
-                            if (!proc.IsSystem)
+                            if (!proc.IsProtected)
                                 if (p.HasExited) continue;
+                            proc.Time = CurrentTime;
                             proc.ProcessorTimeDiff = p.TotalProcessorTime.Ticks - proc.ProcessorTime;
                             TotalCpuTime += proc.ProcessorTimeDiff;
                             proc.ProcessorTime = p.TotalProcessorTime.Ticks;
                         }
                     }
 
-            lock (ProcessDataList)
                 foreach (ProcessData p in ProcessDataList)
-                {
-                    if (TotalCpuTime == 0) continue;
-                    p.ProcessorUsagePercent = p.ProcessorTimeDiff / (decimal)TotalCpuTime * TotalCpuLoadPct;
-                }
+                    if (TotalCpuTime == 0)
+                        continue;
+                    else
+                        p.ProcessorLoadPercent = Decimal.Round((p.ProcessorTimeDiff / (decimal)TotalCpuTime * TotalCpuLoadPct), 2);
+            }
         }
 
         static void WriteProcDataToDb()
         {
+            lock (ProcessDataList)
+            {
+                using (var db = new ArgonDB())
+                    try
+                    {
+                        db.BeginTransaction();
+                        foreach (ProcessData p in ProcessDataList)
+                            if (p.ProcessorLoadPercent != 0)
+                                db.Insert(new ProcessCounters
+                                {
+                                    Time = p.Time,
+                                    Name = p.Name,
+                                    Path = p.Path,
+                                    ProcessorLoadPercent = p.ProcessorLoadPercent
+                                });
+                        db.CommitTransaction();
+                    }
+                    catch
+                    {
+                        db.RollbackTransaction();
+                    }
+            }
 
         }
 
         public class ProcessData
         {
+            public long Time { get; set; }
             public int ID { get; set; }
             public string Name { get; set; }
             public string Path { get; set; }
             public long ProcessorTime { get; set; }
             public long ProcessorTimeDiff { get; set; }
-            public decimal ProcessorUsagePercent { get; set; }
-            public bool IsSystem { get; set; }
+            public decimal ProcessorLoadPercent { get; set; }
+            public bool IsProtected { get; set; }
         }
 
     }

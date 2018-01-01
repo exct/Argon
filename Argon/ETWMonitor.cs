@@ -47,71 +47,56 @@ namespace Argon
                             Processes.ProcessDataList.RemoveAll(p => p.ID == data.ProcessID);
                     };
 
-                    EtwSession.Source.Kernel.TcpIpRecv += data =>
-                    {
-                        try
-                        {
-                            lock (NetworkTrafficList)
-                                lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = 0,
-                                        Recv = data.size,
-                                        DestAddr = data.saddr.ToString(),
-                                        DestPort = data.sport.ToString(),
-                                        SourceAddr = data.daddr.ToString(),
-                                        SourcePort = data.dport.ToString(),
-                                        Type = "T4R"
-                                    });
-                        }
-                        catch { }
-                    };
-
                     EtwSession.Source.Kernel.TcpIpSend += data =>
                     {
                         try
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = data.size,
-                                        Recv = 0,
-                                        SourceAddr = data.saddr.ToString(),
-                                        SourcePort = data.sport.ToString(),
-                                        DestAddr = data.daddr.ToString(),
-                                        DestPort = data.dport.ToString(),
-                                        Type = "T4S"
-                                    });
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            Process = data.ProcessName,
+                                            FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            Sent = data.size,
+                                            Recv = 0,
+                                            SourceAddr = data.saddr.ToString(),
+                                            SourcePort = data.sport.ToString(),
+                                            DestAddr = data.daddr.ToString(),
+                                            DestPort = data.dport.ToString(),
+                                            Type = 1
+                                        });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Sent += data.size;
                         }
                         catch { }
                     };
 
-                    EtwSession.Source.Kernel.TcpIpRecvIPV6 += data =>
+                    EtwSession.Source.Kernel.TcpIpRecv += data =>
                     {
                         try
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
                                     {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = 0,
-                                        Recv = data.size,
-                                        DestAddr = data.saddr.ToString(),
-                                        DestPort = data.sport.ToString(),
-                                        SourceAddr = data.daddr.ToString(),
-                                        SourcePort = data.dport.ToString(),
-                                        Type = "T6R"
-                                    });
+                                        NetworkTrafficList.Add(new NetworkTraffic
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            Process = data.ProcessName,
+                                            FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            Sent = 0,
+                                            Recv = data.size,
+                                            DestAddr = data.saddr.ToString(),
+                                            DestPort = data.sport.ToString(),
+                                            SourceAddr = data.daddr.ToString(),
+                                            SourcePort = data.dport.ToString(),
+                                            Type = 1
+                                        });
+                                    }
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -122,30 +107,34 @@ namespace Argon
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = data.size,
-                                        Recv = 0,
-                                        SourceAddr = data.saddr.ToString(),
-                                        SourcePort = data.sport.ToString(),
-                                        DestAddr = data.daddr.ToString(),
-                                        DestPort = data.dport.ToString(),
-                                        Type = "T6S"
-                                    });
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            Process = data.ProcessName,
+                                            FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            Sent = data.size,
+                                            Recv = 0,
+                                            SourceAddr = data.saddr.ToString(),
+                                            SourcePort = data.sport.ToString(),
+                                            DestAddr = data.daddr.ToString(),
+                                            DestPort = data.dport.ToString(),
+                                            Type = 2
+                                        });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Sent += data.size;
                         }
                         catch { }
                     };
 
-                    EtwSession.Source.Kernel.UdpIpRecv += data =>
+                    EtwSession.Source.Kernel.TcpIpRecvIPV6 += data =>
                     {
                         try
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
@@ -156,8 +145,10 @@ namespace Argon
                                         DestPort = data.sport.ToString(),
                                         SourceAddr = data.daddr.ToString(),
                                         SourcePort = data.dport.ToString(),
-                                        Type = "U4R"
+                                        Type = 2
                                     });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -168,7 +159,8 @@ namespace Argon
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
@@ -179,19 +171,22 @@ namespace Argon
                                         SourcePort = data.sport.ToString(),
                                         DestAddr = data.daddr.ToString(),
                                         DestPort = data.dport.ToString(),
-                                        Type = "U4S"
+                                        Type = 3
                                     });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Sent += data.size;
                         }
                         catch { }
                     };
 
-                    EtwSession.Source.Kernel.UdpIpRecvIPV6 += data =>
+                    EtwSession.Source.Kernel.UdpIpRecv += data =>
                     {
                         try
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
@@ -202,8 +197,10 @@ namespace Argon
                                         DestPort = data.sport.ToString(),
                                         SourceAddr = data.daddr.ToString(),
                                         SourcePort = data.dport.ToString(),
-                                        Type = "U6R"
+                                        Type = 3
                                     });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Recv += data.size;
                         }
                         catch { }
                     };
@@ -214,7 +211,8 @@ namespace Argon
                         {
                             lock (NetworkTrafficList)
                                 lock (Processes.ProcessDataList)
-                                    NetworkTrafficList.Add(new NetworkTraffic
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
                                     {
                                         Time = data.TimeStamp.Ticks.NextSecond(),
                                         Process = data.ProcessName,
@@ -225,8 +223,36 @@ namespace Argon
                                         SourcePort = data.sport.ToString(),
                                         DestAddr = data.daddr.ToString(),
                                         DestPort = data.dport.ToString(),
-                                        Type = "U6S"
+                                        Type = 4
                                     });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Sent += data.size;
+                        }
+                        catch { }
+                    };
+
+                    EtwSession.Source.Kernel.UdpIpRecvIPV6 += data =>
+                    {
+                        try
+                        {
+                            lock (NetworkTrafficList)
+                                lock (Processes.ProcessDataList)
+                                    if (NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
+                                        NetworkTrafficList.Add(new NetworkTraffic
+                                    {
+                                        Time = data.TimeStamp.Ticks.NextSecond(),
+                                        Process = data.ProcessName,
+                                        FilePath = Processes.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                        Sent = 0,
+                                        Recv = data.size,
+                                        DestAddr = data.saddr.ToString(),
+                                        DestPort = data.sport.ToString(),
+                                        SourceAddr = data.daddr.ToString(),
+                                        SourcePort = data.dport.ToString(),
+                                        Type = 4
+                                    });
+                                    else
+                                        NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Recv += data.size;
                         }
                         catch { }
                     };
