@@ -8,7 +8,7 @@ namespace Argon
         public ArgonDB() : base("ArgonDB") { }
 
         public ITable<NetworkTraffic> NetworkTraffic { get { return GetTable<NetworkTraffic>(); } }
-        public ITable<ProcessCounters> ProcessCounters { get { return GetTable<ProcessCounters>(); } }
+        public ITable<ProcessCounter> ProcessCounters { get { return GetTable<ProcessCounter>(); } }
 
     }
 
@@ -19,8 +19,11 @@ namespace Argon
         [Column(Name = "Time"), NotNull]
         public decimal Time { get; set; }
 
-        [Column(Name = "Process"), NotNull]
-        public string Process { get; set; }
+        [Column(Name = "ApplicationName"), NotNull]
+        public string ApplicationName { get; set; }
+
+        [Column(Name = "ProcessName"), NotNull]
+        public string ProcessName { get; set; }
 
         [Column(Name = "FilePath"), NotNull]
         public string FilePath { get; set; }
@@ -47,7 +50,8 @@ namespace Argon
         public int Type { get; set; }
     }
 
-    public class ProcessCounters
+    [Table(Name = "ProcessCounters")]
+    public class ProcessCounter
     {
         [Column(Name = "Time"), NotNull]
         public long Time { get; set; }

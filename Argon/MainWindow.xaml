@@ -30,7 +30,7 @@
                     </Rectangle>
                     <TextBlock Margin="4 0 0 0"
                    VerticalAlignment="Center"
-                   Text="deploy cupcakes" />
+                   Text="Zzz" />
                 </StackPanel>
             </Button>
         </Controls:WindowCommands>

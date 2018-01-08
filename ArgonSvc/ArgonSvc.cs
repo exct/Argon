@@ -19,8 +19,7 @@ namespace ArgonSvc
 
         protected override void OnStart(string[] args)
         {
-            Processes.Initialise();
-            EtwMonitor.Initialise();
+            //Controller.Initialize();
         }
 
         protected override void OnStop()

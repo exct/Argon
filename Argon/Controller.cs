@@ -1,11 +1,12 @@
-﻿using LinqToDB;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Timers;
+
+using LinqToDB;
 
 namespace Argon
 {
@@ -15,18 +16,18 @@ namespace Argon
         public static List<ProcessData> ProcessDataList = new List<ProcessData>();
         public static List<int> NewProcesses = new List<int>();
         public static ConcurrentDictionary<int, string> Services = new ConcurrentDictionary<int, string>();
-        static PerformanceCounter TotalCpuLoadCounter = new PerformanceCounter()
-        {
-            CategoryName = "Processor",
-            CounterName = "% Processor Time",
-            InstanceName = "_Total"
-        };
         static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
         static List<Process> ProcessList = new List<Process>();
         static Timer timer = new Timer(1000);
         static decimal TotalCpuLoadPct = 0;
         static long TotalCpuTime = 0;
         static long CurrentTime;
+        static PerformanceCounter TotalCpuLoadCounter = new PerformanceCounter()
+        {
+            CategoryName = "Processor",
+            CounterName = "% Processor Time",
+            InstanceName = "_Total"
+        };
 
         public static void Initialize()
         {
@@ -80,13 +81,11 @@ namespace Argon
         static void UpdateProcessDataList()
         {
             GetCurrentProcesses();
-            lock (NewProcesses)
-            {
+            lock (NewProcesses) {
                 if (NewProcesses.Count() > 1)
                     lock (ProcessDataList)
                         lock (ProcessList)
-                            foreach (int i in NewProcesses)
-                            {
+                            foreach (int i in NewProcesses) {
                                 var p = ProcessList.Where(x => x.Id == i).FirstOrDefault();
                                 if (p != null)
                                     AddToProcessDataList(p);
@@ -98,8 +97,7 @@ namespace Argon
         static void AddToProcessDataList(Process p)
         {
             if (p.Id == 0) return;
-            try
-            {
+            try {
                 if (p.HasExited) return;
                 ProcessDataList.Add(new ProcessData
                 {
@@ -112,15 +110,14 @@ namespace Argon
                             String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
                                 (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
                                     p.ProcessName : p.MainModule.FileVersionInfo.ProductName) : p.MainModule.FileVersionInfo.FileDescription,
-                    Path = p.MainModule.FileName, //p.ProcessName == "svchost" ? (GetServiceName(p.Id) ?? p.MainModule.FileName) : 
+                    Path = p.MainModule.FileName,
                     ProcessorTime = p.TotalProcessorTime.Ticks,
                     ProcessorTimeDiff = 0,
                     ProcessorLoadPercent = 0,
                     IsProtected = p.ProcessName == "svchost" ? true : false
                 });
             }
-            catch (System.ComponentModel.Win32Exception)
-            {
+            catch (System.ComponentModel.Win32Exception) {
                 ProcessDataList.Add(new ProcessData
                 {
                     ID = p.Id,
@@ -150,16 +147,13 @@ namespace Argon
             TotalCpuLoadPct = (decimal)TotalCpuLoadCounter.NextValue();
             CurrentTime = DateTime.Now.Ticks.NextSecond();
 
-            lock (ProcessDataList)
-            {
+            lock (ProcessDataList) {
                 lock (ProcessList)
-                    foreach (Process p in ProcessList)
-                    {
+                    foreach (Process p in ProcessList) {
                         var proc = ProcessDataList.Where(x => x.ID == p.Id).FirstOrDefault();
                         if (proc == null)
                             AddToProcessDataList(p);
-                        else
-                        {
+                        else {
                             if (!proc.IsProtected)
                                 if (p.HasExited) continue;
                             proc.Time = CurrentTime;
@@ -180,21 +174,19 @@ namespace Argon
         static void WriteToDb()
         {
             using (var db = new ArgonDB())
-                try
-                {
+                try {
                     db.BeginTransaction();
                     lock (ProcessDataList)
                         foreach (ProcessData p in ProcessDataList)
                             if (p.ProcessorLoadPercent != 0)
-                                db.Insert(new ProcessCounters
+                                db.Insert(new ProcessCounter
                                 {
                                     Time = p.Time,
                                     Name = p.Name,
                                     Path = p.Path,
                                     ProcessorLoadPercent = p.ProcessorLoadPercent
                                 });
-                    lock (NetworkTrafficList)
-                    {
+                    lock (NetworkTrafficList) {
                         foreach (NetworkTraffic n in NetworkTrafficList)
                             db.Insert(n);
                         NetworkTrafficList.Clear();

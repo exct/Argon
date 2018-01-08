@@ -1,9 +1,9 @@
-﻿using LinqToDB;
-using Microsoft.Diagnostics.Tracing.Parsers;
-using Microsoft.Diagnostics.Tracing.Session;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.Diagnostics.Tracing.Session;
 
 namespace Argon
 {
@@ -19,10 +19,8 @@ namespace Argon
 
         static void StartEtwSession()
         {
-            try
-            {
-                using (EtwSession = new TraceEventSession("ArgonTraceEventSession"))
-                {
+            try {
+                using (EtwSession = new TraceEventSession("ArgonTraceEventSession")) {
                     EtwSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP |
                                                     KernelTraceEventParser.Keywords.Process);
 
@@ -44,16 +42,20 @@ namespace Argon
 
                     EtwSession.Source.Kernel.TcpIpSend += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 1).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 1)
+                                        .First().Sent += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
-                                            Process = data.ProcessName,
-                                            FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
                                             Sent = data.size,
                                             Recv = 0,
                                             SourceAddr = data.saddr.ToString(),
@@ -62,25 +64,27 @@ namespace Argon
                                             DestPort = data.dport.ToString(),
                                             Type = 1
                                         });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Sent += data.size;
+                                    }
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.TcpIpRecv += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).Count() == 0)
-                                    {
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 1).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 1)
+                                        .First().Recv += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
-                                            Process = data.ProcessName,
-                                            FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
                                             Sent = 0,
                                             Recv = data.size,
                                             DestAddr = data.saddr.ToString(),
@@ -90,24 +94,26 @@ namespace Argon
                                             Type = 1
                                         });
                                     }
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 1).First().Recv += data.size;
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.TcpIpSendIPV6 += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 2).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 2)
+                                        .First().Sent += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
-                                            Process = data.ProcessName,
-                                            FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
                                             Sent = data.size,
                                             Recv = 0,
                                             SourceAddr = data.saddr.ToString(),
@@ -116,138 +122,149 @@ namespace Argon
                                             DestPort = data.dport.ToString(),
                                             Type = 2
                                         });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Sent += data.size;
+                                    }
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.TcpIpRecvIPV6 += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 2).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 2).First().Recv += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = 0,
-                                        Recv = data.size,
-                                        DestAddr = data.saddr.ToString(),
-                                        DestPort = data.sport.ToString(),
-                                        SourceAddr = data.daddr.ToString(),
-                                        SourcePort = data.dport.ToString(),
-                                        Type = 2
-                                    });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 2).First().Recv += data.size;
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
+                                            Sent = 0,
+                                            Recv = data.size,
+                                            DestAddr = data.saddr.ToString(),
+                                            DestPort = data.sport.ToString(),
+                                            SourceAddr = data.daddr.ToString(),
+                                            SourcePort = data.dport.ToString(),
+                                            Type = 2
+                                        });
+                                    }
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpSend += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 3).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 3).First().Sent += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = data.size,
-                                        Recv = 0,
-                                        SourceAddr = data.saddr.ToString(),
-                                        SourcePort = data.sport.ToString(),
-                                        DestAddr = data.daddr.ToString(),
-                                        DestPort = data.dport.ToString(),
-                                        Type = 3
-                                    });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Sent += data.size;
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
+                                            Sent = data.size,
+                                            Recv = 0,
+                                            SourceAddr = data.saddr.ToString(),
+                                            SourcePort = data.sport.ToString(),
+                                            DestAddr = data.daddr.ToString(),
+                                            DestPort = data.dport.ToString(),
+                                            Type = 3
+                                        });
+                                    }
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpRecv += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 3).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 3).First().Recv += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = 0,
-                                        Recv = data.size,
-                                        DestAddr = data.saddr.ToString(),
-                                        DestPort = data.sport.ToString(),
-                                        SourceAddr = data.daddr.ToString(),
-                                        SourcePort = data.dport.ToString(),
-                                        Type = 3
-                                    });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 3).First().Recv += data.size;
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
+                                            Sent = 0,
+                                            Recv = data.size,
+                                            DestAddr = data.saddr.ToString(),
+                                            DestPort = data.sport.ToString(),
+                                            SourceAddr = data.daddr.ToString(),
+                                            SourcePort = data.dport.ToString(),
+                                            Type = 3
+                                        });
+                                    }
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpSendIPV6 += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 4).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 4)
+                                        .First().Sent += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = data.size,
-                                        Recv = 0,
-                                        SourceAddr = data.saddr.ToString(),
-                                        SourcePort = data.sport.ToString(),
-                                        DestAddr = data.daddr.ToString(),
-                                        DestPort = data.dport.ToString(),
-                                        Type = 4
-                                    });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Sent += data.size;
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
+                                            Sent = data.size,
+                                            Recv = 0,
+                                            SourceAddr = data.saddr.ToString(),
+                                            SourcePort = data.sport.ToString(),
+                                            DestAddr = data.daddr.ToString(),
+                                            DestPort = data.dport.ToString(),
+                                            Type = 4
+                                        });
+                                    }
                         }
                         catch { }
                     };
 
                     EtwSession.Source.Kernel.UdpIpRecvIPV6 += data =>
                     {
-                        try
-                        {
+                        try {
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
-                                    if (Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).Count() == 0)
+                                    if (Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 4).Any())
+                                        Controller.NetworkTrafficList.Where(x => x.ProcessName == data.ProcessName && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Time == data.TimeStamp.Ticks.NextSecond() && x.Type == 4)
+                                        .First().Recv += data.size;
+                                    else {
+                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
-                                    {
-                                        Time = data.TimeStamp.Ticks.NextSecond(),
-                                        Process = data.ProcessName,
-                                        FilePath = Controller.ProcessDataList.Where(p => p.ID == data.ProcessID).Select(p => p.Path).First(),
-                                        Sent = 0,
-                                        Recv = data.size,
-                                        DestAddr = data.saddr.ToString(),
-                                        DestPort = data.sport.ToString(),
-                                        SourceAddr = data.daddr.ToString(),
-                                        SourcePort = data.dport.ToString(),
-                                        Type = 4
-                                    });
-                                    else
-                                        Controller.NetworkTrafficList.Where(x => x.Process == data.ProcessName && x.Type == 4).First().Recv += data.size;
+                                        {
+                                            Time = data.TimeStamp.Ticks.NextSecond(),
+                                            ApplicationName = p.Name,
+                                            ProcessName = data.ProcessName,
+                                            FilePath = p.Path,
+                                            Sent = 0,
+                                            Recv = data.size,
+                                            DestAddr = data.saddr.ToString(),
+                                            DestPort = data.sport.ToString(),
+                                            SourceAddr = data.daddr.ToString(),
+                                            SourcePort = data.dport.ToString(),
+                                            Type = 4
+                                        });
+                                    }
                         }
                         catch { }
                     };
@@ -255,12 +272,10 @@ namespace Argon
                     EtwSession.Source.Process();
                 }
             }
-            catch
-            {
+            catch {
                 if (++Failed > 3)
                     throw;
-                else
-                {
+                else {
                     Thread.Sleep(1000);
                     Initialize();
                 }

@@ -2,105 +2,127 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
+
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 
 namespace Argon
 {
-    /// <summary>
-    /// Interaction logic for Graph.xaml
-    /// </summary>
     public partial class Graph : UserControl, INotifyPropertyChanged
     {
-        const int shift = 10000000;
-        private double _lastValue;
-
-        public SeriesCollection NetworkDataSeries { get; set; }
         ArgonDB db = new ArgonDB();
+        int duration = 60;
+        ChartValues<ObservableValue> sendVals = new ChartValues<ObservableValue>();
+        ChartValues<ObservableValue> recvVals = new ChartValues<ObservableValue>();
+        public SeriesCollection DataSeries { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public Graph()
-        {
-            InitializeComponent();
-
-            //Get last 60s from db
-            DateTime dt = new DateTime(DateTime.Now.Ticks.NextSecond()); 
-            var data = from x in db.NetworkTraffic
-                       where x.Time > dt.AddSeconds(-60).Ticks
-                       select new NetworkTraffic
-                       {
-                           Time = x.Time,
-                           Sent = x.Sent,
-                           Recv = x.Recv
-                       };
-
-            var data2 = data.GroupBy(x => x.Time).Select(y => new { Value = y.Sum(z => z.Sent + z.Recv) });
-            var ChartVals = new ChartValues<ObservableValue>();
-            for (int i = 60; i > 0; i--)
-            {
-                var time = dt.AddSeconds(-i).Ticks;
-
-                ChartVals.Add(new ObservableValue(0 + data.Where(x => x.Time == time).GroupBy(x => x.Time).Select(y => y.Sum(z => z.Sent + z.Recv)).FirstOrDefault()));
-            }
-
-
-
-            NetworkDataSeries = new SeriesCollection
-            {
-                new LineSeries
-                {
-                    AreaLimit = -10,
-                    Values = ChartVals
-                }
-            };
-
-            //Task.Run(() =>
-            //{
-            //    while (true)
-            //    {
-            //        Thread.Sleep(1000);
-            //        Application.Current.Dispatcher.Invoke(() =>
-            //        {
-            //            NetworkDataSeries[0].Values.Add(new ObservableValue(0 +
-            //                db.NetworkTraffic.Where(x => x.Time > DateTime.Now.AddSeconds(-1).Ticks).GroupBy(x => x.Time > 1).Select(y => y.Sum(z => z.Sent + z.Recv)).FirstOrDefault()));
-            //            NetworkDataSeries[0].Values.RemoveAt(0);
-            //            SetValue();
-            //        });
-            //    }
-            //});
-            //DataContext = this;
-        }
-
+        private double _lastValue;
         public double LastValue
         {
             get { return _lastValue; }
-            set
-            {
+            set {
                 _lastValue = value;
                 OnPropertyChanged("LastValue");
             }
         }
 
-        private void SetValue()
+
+        public Graph()
         {
-            LastValue = ((ChartValues<ObservableValue>)NetworkDataSeries[0].Values).Last().Value;
+            InitializeComponent();
+
+            DataSeries = GetValues(duration);
+
+
+            Task.Run(() =>
+            {
+                while (true) {
+                    Thread.Sleep(1000);
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        DataSeries[0].Values.RemoveAt(59);
+                        DataSeries[1].Values.RemoveAt(59);
+                        DataSeries[0].Values.RemoveAt(0);
+                        DataSeries[1].Values.RemoveAt(0);
+                        DataSeries[0].Values.Add(GetLastValue(true, 3));
+                        DataSeries[1].Values.Add(GetLastValue(false, 3));
+                        DataSeries[0].Values.Add(GetLastValue(true, 2));
+                        DataSeries[1].Values.Add(GetLastValue(false, 2));
+                        SetValue();
+                    });
+                }
+            });
+
+            DataContext = this;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public SeriesCollection GetValues(int duration)
+        {
+            var time = DateTime.Now.AddSeconds(-duration);
+            var data = db.NetworkTraffic
+                         .Where(x => x.Time > time.Ticks.NextSecond())
+                         .OrderBy(x => x.Time)
+                         .GroupBy(x => x.Time)
+                         .Select(y => new
+                         {
+                             Time = y.Select(z => z.Time).First(),
+                             Sent = new ObservableValue(y.Sum(z => z.Sent)),
+                             Recv = new ObservableValue(y.Sum(z => z.Recv))
+                         });
+
+            var Sent = new List<ObservableValue>();
+            var Recv = new List<ObservableValue>();
+
+            for (int i = 0; i < duration; i++) {
+                if (data.Where(x => x.Time == time.AddSeconds(i).Ticks.NextSecond()).Count() > 0) {
+                    Sent.Add(data.Where(x => x.Time == time.AddSeconds(i).Ticks.NextSecond()).Select(x => x.Sent).First());
+                    Recv.Add(data.Where(x => x.Time == time.AddSeconds(i).Ticks.NextSecond()).Select(x => x.Recv).First());
+                }
+                else {
+                    Sent.Add(new ObservableValue(0));
+                    Recv.Add(new ObservableValue(0));
+                }
+            }
+
+            return new SeriesCollection
+                {
+                    new LineSeries { Values = new ChartValues<ObservableValue>(Sent) },
+                    new LineSeries { Values = new ChartValues<ObservableValue>(Recv) }
+                };
+        }
+
+        ObservableValue GetLastValue(bool send, int sec)
+        {
+            int data;
+            if (send)
+                data = db.NetworkTraffic
+                         .Where(x => x.Time == DateTime.Now.AddSeconds(-sec).Ticks.NextSecond())
+                         .GroupBy(x => x.Time)
+                         .Select(x => x.Sum(y => y.Sent))
+                         .FirstOrDefault();
+            else
+                data = db.NetworkTraffic
+                         .Where(x => x.Time == DateTime.Now.AddSeconds(-sec).Ticks.NextSecond())
+                         .GroupBy(x => x.Time)
+                         .Select(x => x.Sum(y => y.Recv))
+                         .FirstOrDefault();
+
+            return new ObservableValue(data);
+
+        }
+
+        private void SetValue()
+        {
+            LastValue = ((ChartValues<ObservableValue>)DataSeries[0].Values).Last().Value +
+                        ((ChartValues<ObservableValue>)DataSeries[1].Values).Last().Value;
+        }
+
 
         protected virtual void OnPropertyChanged(string propertyName = null)
         {
