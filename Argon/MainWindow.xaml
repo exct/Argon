@@ -53,7 +53,7 @@
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center"/>
                 </TabItem.Header>
-                <local:Graph></local:Graph>
+                <local:NetworkGraph></local:NetworkGraph>
             </TabItem>
             <TabItem Height="50">
                 <TabItem.Header>

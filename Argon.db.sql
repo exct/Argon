@@ -1,0 +1,30 @@
+BEGIN TRANSACTION;
+DROP TABLE IF EXISTS `ProcessCounters`;
+CREATE TABLE IF NOT EXISTS `ProcessCounters` (
+	`Time`	INTEGER NOT NULL,
+	`Name`	INTEGER NOT NULL,
+	`Path`	INTEGER NOT NULL,
+	`ProcessorLoadPercent`	INTEGER NOT NULL
+);
+DROP TABLE IF EXISTS `NetworkTrafficTypes`;
+CREATE TABLE IF NOT EXISTS `NetworkTrafficTypes` (
+	`ID`	INTEGER NOT NULL,
+	`Type`	TEXT NOT NULL,
+	PRIMARY KEY(`ID`)
+) WITHOUT ROWID;
+DROP TABLE IF EXISTS `NetworkTraffic`;
+CREATE TABLE IF NOT EXISTS `NetworkTraffic` (
+	`Time`	INTEGER NOT NULL,
+	`ApplicationName`	TEXT NOT NULL,
+	`ProcessName`	TEXT NOT NULL,
+	`FilePath`	TEXT NOT NULL,
+	`Sent`	INTEGER NOT NULL,
+	`Recv`	INTEGER NOT NULL,
+	`SourceAddr`	TEXT NOT NULL,
+	`SourcePort`	TEXT NOT NULL,
+	`DestAddr`	TEXT NOT NULL,
+	`DestPort`	TEXT NOT NULL,
+	`Type`	INTEGER NOT NULL,
+	`ProcessID`	INTEGER
+);
+COMMIT;

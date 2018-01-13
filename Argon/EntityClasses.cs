@@ -48,6 +48,9 @@ namespace Argon
 
         [Column(Name = "Type"), NotNull]
         public int Type { get; set; }
+
+        [Column(Name = "ProcessID"), NotNull]
+        public int ProcessID { get; set; }
     }
 
     [Table(Name = "ProcessCounters")]
