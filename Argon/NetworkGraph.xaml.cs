@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 using LiveCharts;
 using LiveCharts.Defaults;
@@ -17,6 +18,7 @@ namespace Argon
     {
         public ChartValues<DateTimePoint> SentValues { get; set; }
         public ChartValues<DateTimePoint> RecvValues { get; set; }
+        public CollectionViewSource AppListViewSource { get; set; }
         public List<App> _ApplicationList = new List<App>();
         public List<App> ApplicationList
         {
@@ -53,6 +55,11 @@ namespace Argon
             To = DateTime.Now.AddSeconds(-1).Ticks.NextSecond();
             Formatter = x => new DateTime((long)x).ToString("hh:mm:ss tt");
             ApplicationList = GetAppList();
+            AppListViewSource = new CollectionViewSource
+            {
+                Source = ApplicationList,
+            };
+            AppListViewSource.View.SortDescriptions.Add(new SortDescription("Total", ListSortDirection.Descending));
 
             Task.Run(() =>
             {
@@ -69,7 +76,13 @@ namespace Argon
                         SetValue();
                         From += TimeSpan.FromSeconds(1).Ticks;
                         To += TimeSpan.FromSeconds(1).Ticks;
+                        SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
+                        int PrevSelectedIndex = AppListGridView.SelectedIndex;
                         ApplicationList = GetAppList();
+                        AppListViewSource.Source = ApplicationList;
+                        AppListViewSource.View.SortDescriptions.Add(sd);
+                        AppListGridView.Columns.First(x => x.Header.ToString() == sd.PropertyName).SortDirection = sd.Direction;
+                        AppListGridView.SelectedIndex = PrevSelectedIndex;
                     });
                 }
             });

@@ -10,9 +10,9 @@
     <Grid>
         <Grid.Resources>
             <Style TargetType="lvc:LineSeries">
-                <Setter Property="StrokeThickness" Value="2"></Setter>
-                <Setter Property="PointGeometry" Value="{x:Null}"></Setter>
-                <Setter Property="LineSmoothness" Value="0.7"></Setter>
+                <Setter Property="StrokeThickness" Value="2"/>
+                <Setter Property="PointGeometry" Value="{x:Null}"/>
+                <Setter Property="LineSmoothness" Value="0.7"/>
             </Style>
             <!--<Style TargetType="lvc:Axis">
                 <Setter Property="ShowLabels" Value="False"></Setter>
@@ -20,12 +20,12 @@
             </Style>-->
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="5*"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="350"></ColumnDefinition>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="400"/>
         </Grid.ColumnDefinitions>
 
         <!--<TextBlock Foreground="#303030" FontSize="40" Text="{Binding LastValue, StringFormat={}{0:N1}}" />-->
@@ -41,10 +41,10 @@
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
-                    <Setter Property="IsEnabled" Value="False"></Setter>
+                    <Setter Property="IsEnabled" Value="False"/>
                     <Style.Triggers>
                         <Trigger Property="AxisOrientation" Value="X">
-                            <Setter Property="IsEnabled" Value="False"></Setter>
+                            <Setter Property="IsEnabled" Value="False"/>
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -59,7 +59,7 @@
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
 
-        <DataGrid Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ApplicationList, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True" SelectionUnit="FullRow" >
+        <DataGrid x:Name="AppListGridView" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="">
                     <DataGridTemplateColumn.CellTemplate>
@@ -68,23 +68,28 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Sent" Binding="{Binding Sent}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Recv" Binding="{Binding Recv}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Total" Binding="{Binding Total}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding Path}" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{x:Null}" />
+                                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Sent" Binding="{Binding Sent}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
+                <DataGridTextColumn Header="Recv" Binding="{Binding Recv}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
+                <DataGridTextColumn Header="Total" Binding="{Binding Total}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
             </DataGrid.Columns>
-            <DataGrid.RowDetailsTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Path}" TextWrapping="Wrap"
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                </DataTemplate>
-            </DataGrid.RowDetailsTemplate>
-            <!--<DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <!--<DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="IsHitTestVisible" Value="False"/>
                 </Style>
-            </DataGrid.ColumnHeaderStyle>-->
+            </DataGrid.RowStyle>-->
         </DataGrid>
 
         <lvc:CartesianChart Grid.Row="1" Grid.ColumnSpan="2" DisableAnimations="True" 
@@ -97,7 +102,7 @@
                             Margin="20 10">
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
-                    <Setter Property="IsEnabled" Value="False"></Setter>
+                    <Setter Property="IsEnabled" Value="False"/>
                 </Style>
             </lvc:CartesianChart.Resources>
             <lvc:CartesianChart.Series>
