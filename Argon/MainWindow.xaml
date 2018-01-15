@@ -40,7 +40,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" Grid.Row="0">
@@ -49,27 +48,52 @@
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </Controls:MetroAnimatedSingleRowTabControl.Resources>
+            
             <TabItem Height="50">
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center"/>
                 </TabItem.Header>
-                <local:NetworkGraph></local:NetworkGraph>
+                
+                <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl">
+                    <Controls:MetroAnimatedSingleRowTabControl.Resources>
+                        <Style TargetType="{x:Type TabPanel}">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </Controls:MetroAnimatedSingleRowTabControl.Resources>
+                    
+                    <TabItem Height="30">
+                        <TabItem.Header>
+                            <TextBlock Text="Network" FontSize="20" IsHitTestVisible="True" Margin="10 0 10 0"/>
+                        </TabItem.Header>
+                        <local:NetworkGraph></local:NetworkGraph>
+                    </TabItem>
+                    <TabItem Height="30">
+                        <TabItem.Header>
+                            <TextBlock Text="Processor" FontSize="20" IsHitTestVisible="True" Margin="10 0 10 0"/>
+                        </TabItem.Header>
+
+                    </TabItem>
+                </Controls:MetroAnimatedSingleRowTabControl>
             </TabItem>
+            
             <TabItem Height="50">
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" VerticalAlignment="Center"/>
                 </TabItem.Header>
             </TabItem>
+            
             <TabItem Height="50">
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" VerticalAlignment="Center"/>
                 </TabItem.Header>
             </TabItem>
+            
             <TabItem Height="50">
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" VerticalAlignment="Center"/>
                 </TabItem.Header>
             </TabItem>
+            
         </Controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 

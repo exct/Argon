@@ -25,12 +25,12 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
         <!--<TextBlock Foreground="#303030" FontSize="40" Text="{Binding LastValue, StringFormat={}{0:N1}}" />-->
 
-        <lvc:CartesianChart Grid.Row="0" Grid.Column="0" Margin="10 0 10 0" DisableAnimations="True" AnimationsSpeed="0:0:0.5" Hoverable="False" DataTooltip="{x:Null}" >
+        <lvc:CartesianChart Grid.Row="0" Grid.Column="0" Margin="10 0 10 0" DisableAnimations="True" AnimationsSpeed="0:0:0.3" Hoverable="False" DataTooltip="{x:Null}" >
             <lvc:CartesianChart.Series>
                 <lvc:LineSeries Values="{Binding SentValues}"
                                 Stroke="#CCFFFF00"
@@ -50,16 +50,15 @@
                 </Style>
             </lvc:CartesianChart.Resources>
             <lvc:CartesianChart.AxisX>
-                <lvc:Axis LabelFormatter="{Binding Formatter}" RangeChanged="Axis_OnRangeChanged" 
-                          MinValue="{Binding From, Mode=TwoWay}" MaxValue="{Binding To, Mode=TwoWay}"
-                           />
+                <lvc:Axis LabelFormatter="{Binding Formatter, Mode=OneTime}"  RangeChanged="Axis_OnRangeChanged"
+                          MinValue="{Binding From, Mode=OneWay}" MaxValue="{Binding To, Mode=OneWay}" />
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis MinValue="0" />
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
 
-        <DataGrid x:Name="AppListGridView" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True">
+        <DataGrid x:Name="AppListGridView" Grid.Row="0" Grid.Column="1" Margin="0 0 20 0" ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="">
                     <DataGridTemplateColumn.CellTemplate>
@@ -68,7 +67,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}">
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}">
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Setter Property="ToolTip" Value="{Binding Path}" />
@@ -92,10 +91,12 @@
             </DataGrid.RowStyle>-->
         </DataGrid>
 
-        <lvc:CartesianChart Grid.Row="1" Grid.ColumnSpan="2" DisableAnimations="True" 
+        <lvc:CartesianChart x:Name="ScrollChart" Grid.Row="1" Grid.ColumnSpan="2" 
+                            DisableAnimations="True" 
                             ScrollMode="X" 
-                            ScrollHorizontalFrom="{Binding From, Mode=TwoWay}"
-                            ScrollHorizontalTo="{Binding To, Mode=TwoWay}"
+                            ScrollHorizontalFrom="{Binding From, Mode=OneWay}"
+                            ScrollHorizontalTo="{Binding To, Mode=OneWay}"
+                            LostMouseCapture="CartesianChart_LostMouseCapture"
                             ScrollBarFill="#25FFFFFF"
                             DataTooltip="{x:Null}"
                             Hoverable="False"
@@ -114,11 +115,7 @@
                                 Fill="#3300FFFF"/>
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.AxisX>
-                <lvc:Axis IsMerged="True" 
-                          LabelFormatter="{Binding Formatter, Mode=OneTime}" 
-                          Foreground="#98000000"
-                          FontSize="22"
-                          FontWeight="UltraBold"/>
+                <lvc:Axis ShowLabels="False" />
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis ShowLabels="False" />
