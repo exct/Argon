@@ -25,7 +25,7 @@
                    Height="20"
                    Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
                         <Rectangle.OpacityMask>
-                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_cupcake}" />
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_graph_line_up}" />
                         </Rectangle.OpacityMask>
                     </Rectangle>
                     <TextBlock Margin="4 0 0 0"
@@ -51,7 +51,16 @@
             
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center"/>
+                    <Button>
+                        <Rectangle Width="30"
+                   Height="0"
+                   Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_graph_line_up}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </Button>
+                    <!--<iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center" />-->
                 </TabItem.Header>
                 
                 <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl">

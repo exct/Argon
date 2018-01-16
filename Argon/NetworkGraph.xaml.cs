@@ -85,7 +85,18 @@ namespace Argon
                 var Sent2 = GetLastValue(true, 2);
                 var Recv1 = GetLastValue(false, 3);
                 var Recv2 = GetLastValue(false, 2);
-                var AppList = ApplicationList;
+                var AppList = new ObservableCollection<App>();
+                bool IsScrolling, AtStart, AtEnd;
+                IsScrolling = AtStart = AtEnd = false;
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    IsScrolling = ScrollChart.IsMouseCaptureWithin;
+                    AtStart = ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks;
+                    AtEnd = ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks;
+
+                }));
+                if (!IsScrolling && (AtEnd || AtStart))
+                    AppList = ApplicationList;
                 Dispatcher.Invoke(new Action(() =>
                 {
                     SentValues.RemoveAt(0);
@@ -96,21 +107,23 @@ namespace Argon
                     RecvValues.Add(Recv1);
                     SentValues.Add(Sent2);
                     RecvValues.Add(Recv2);
-                    if (!ScrollChart.IsMouseCaptureWithin) {
-                        if (ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks) {
+                    if (!IsScrolling) {
+                        if (AtStart) {
                             ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-61).Ticks;
                             ScrollChart.ScrollHorizontalTo = To = DateTime.Now.AddSeconds(-1).Ticks;
                         }
-                        if (ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks) {
+                        else if (AtEnd) {
                             ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-duration).Ticks;
                             ScrollChart.ScrollHorizontalTo = To = DateTime.Now.AddSeconds(-duration + 60).Ticks;
                         }
-                        SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
-                        int PrevSelectedIndex = AppListGridView.SelectedIndex;
-                        AppListViewSource.Source = AppList;
-                        AppListViewSource.View.SortDescriptions.Add(sd);
-                        AppListGridView.Columns.First(x => x.Header.ToString() == sd.PropertyName).SortDirection = sd.Direction;
-                        AppListGridView.SelectedIndex = PrevSelectedIndex;
+                        if (AtStart || AtEnd) {
+                            SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
+                            int PrevSelectedIndex = AppListGridView.SelectedIndex;
+                            AppListViewSource.Source = AppList;
+                            AppListViewSource.View.SortDescriptions.Add(sd);
+                            AppListGridView.Columns.First(x => x.Header.ToString() == sd.PropertyName).SortDirection = sd.Direction;
+                            AppListGridView.SelectedIndex = PrevSelectedIndex;
+                        }
                     }
                 }));
             });
@@ -259,9 +272,18 @@ namespace Argon
 
         private void CartesianChart_LostMouseCapture(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            var s = (LiveCharts.Wpf.CartesianChart)sender;
-            From = s.ScrollHorizontalFrom;
-            To = s.ScrollHorizontalTo;
+            if (ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks) {
+                ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-61).Ticks;
+                ScrollChart.ScrollHorizontalTo = To = DateTime.Now.AddSeconds(-1).Ticks;
+            }
+            else if (ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks) {
+                ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-duration).Ticks;
+                ScrollChart.ScrollHorizontalTo = To = DateTime.Now.AddSeconds(-duration + 60).Ticks;
+            }
+            else {
+                From = ScrollChart.ScrollHorizontalFrom;
+                To = ScrollChart.ScrollHorizontalTo;
+            }
 
             SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
             int PrevSelectedIndex = AppListGridView.SelectedIndex;
