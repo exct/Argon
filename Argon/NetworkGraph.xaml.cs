@@ -3,9 +3,13 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+
+using LinqToDB;
 
 using LiveCharts;
 using LiveCharts.Defaults;
@@ -18,26 +22,14 @@ namespace Argon
         public ChartValues<DateTimePoint> SentValues { get; set; }
         public ChartValues<DateTimePoint> RecvValues { get; set; }
         public CollectionViewSource AppListViewSource { get; set; }
+        private ObservableCollection<App> _applicationList = new ObservableCollection<App>();
         public ObservableCollection<App> ApplicationList
         {
-            get {
-                using (var db = new ArgonDB()) {
-                    return db.NetworkTraffic
-                             .Where(x => (double)x.Time > From && (double)x.Time < To)
-                             .GroupBy(x => x.ApplicationName)
-                             .Select(y => new App
-                             {
-                                 Name = y.First().ApplicationName,
-                                 Path = y.First().FilePath,
-                                 Sent = y.Sum(z => z.Sent),
-                                 Recv = y.Sum(z => z.Recv),
-                                 Total = y.Sum(z => z.Sent) + y.Sum(z => z.Recv)
-                             }).ToObservableCollection();
-                }
-            }
+            get { return GetAppList(); }
             set { }
         }
 
+        private MainWindow mainWindow;
         private int duration = 600;
         private double _lastValue;
         public double LastValue
@@ -57,9 +49,9 @@ namespace Argon
         public NetworkGraph()
         {
             InitializeComponent();
+            mainWindow = (MainWindow)Application.Current.MainWindow;
             SentValues = new ChartValues<DateTimePoint>();
             RecvValues = new ChartValues<DateTimePoint>();
-
 
             GetValues(duration);
             From = DateTime.Now.AddSeconds(-61).Ticks.NextSecond();
@@ -77,37 +69,37 @@ namespace Argon
             _timer.Start();
         }
 
-        private async void Run(object sender, System.EventArgs e)
+        private void Run(object sender, System.EventArgs e)
         {
-            await Task.Run(() =>
+            Task.Run(() =>
             {
                 var Sent1 = GetLastValue(true, 3);
                 var Sent2 = GetLastValue(true, 2);
                 var Recv1 = GetLastValue(false, 3);
                 var Recv2 = GetLastValue(false, 2);
                 var AppList = new ObservableCollection<App>();
-                bool IsScrolling, AtStart, AtEnd;
-                IsScrolling = AtStart = AtEnd = false;
+                bool IsScrolling, AtStart, AtEnd, IsActive;
+                IsScrolling = AtStart = AtEnd = IsActive = false;
+
                 Dispatcher.Invoke(new Action(() =>
                 {
+                    IsActive = mainWindow.MainTabControl.SelectedIndex == 0 && mainWindow.GraphTabControl.SelectedIndex == 0;
                     IsScrolling = ScrollChart.IsMouseCaptureWithin;
                     AtStart = ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks;
                     AtEnd = ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks;
-
                 }));
-                if (!IsScrolling && (AtEnd || AtStart))
-                    AppList = ApplicationList;
-                Dispatcher.Invoke(new Action(() =>
+
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    SentValues.RemoveAt(0);
-                    RecvValues.RemoveAt(0);
                     SentValues.RemoveAt(SentValues.Count - 1);
                     RecvValues.RemoveAt(RecvValues.Count - 1);
+                    SentValues.RemoveAt(0);
+                    RecvValues.RemoveAt(0);
                     SentValues.Add(Sent1);
                     RecvValues.Add(Recv1);
                     SentValues.Add(Sent2);
                     RecvValues.Add(Recv2);
-                    if (!IsScrolling) {
+                    if (!IsScrolling)
                         if (AtStart) {
                             ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-61).Ticks;
                             ScrollChart.ScrollHorizontalTo = To = DateTime.Now.AddSeconds(-1).Ticks;
@@ -116,27 +108,37 @@ namespace Argon
                             ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-duration).Ticks;
                             ScrollChart.ScrollHorizontalTo = To = DateTime.Now.AddSeconds(-duration + 60).Ticks;
                         }
-                        if (AtStart || AtEnd) {
-                            SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
-                            int PrevSelectedIndex = AppListGridView.SelectedIndex;
-                            AppListViewSource.Source = AppList;
-                            AppListViewSource.View.SortDescriptions.Add(sd);
-                            AppListGridView.Columns.First(x => x.Header.ToString() == sd.PropertyName).SortDirection = sd.Direction;
-                            AppListGridView.SelectedIndex = PrevSelectedIndex;
-                        }
-                    }
                 }));
+
+                if (IsActive && !IsScrolling && (AtEnd || AtStart))
+                    UpdateDataGrid();
             });
+        }
+
+        protected void UpdateDataGrid()
+        {
+            var AppList = ApplicationList;
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
+                int PrevSelectedIndex = AppListGridView.SelectedIndex;
+                AppListViewSource.Source = AppList;
+                AppListViewSource.View.SortDescriptions.Add(sd);
+                AppListGridView.Columns.First(x => x.Header.ToString() == sd.PropertyName).SortDirection = sd.Direction;
+                AppListGridView.SelectedIndex = PrevSelectedIndex;
+            }));
         }
 
         protected ObservableCollection<App> GetAppList()
         {
             using (var db = new ArgonDB()) {
                 return db.NetworkTraffic
-                         .Where(x => (double)x.Time > From && (double)x.Time < To)
+                         .Where(x => ((double)x.Time).Between(From, To))
                          .GroupBy(x => x.ApplicationName)
                          .Select(y => new App
                          {
+                             Icon = y.First().FilePath.GetIcon(),
                              Name = y.First().ApplicationName,
                              Path = y.First().FilePath,
                              Sent = y.Sum(z => z.Sent),
@@ -262,6 +264,7 @@ namespace Argon
 
         public class App
         {
+            public BitmapSource Icon { get; set; }
             public string Name { get; set; }
             public string Path { get; set; }
             public int Sent { get; set; }
@@ -285,13 +288,7 @@ namespace Argon
                 To = ScrollChart.ScrollHorizontalTo;
             }
 
-            SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
-            int PrevSelectedIndex = AppListGridView.SelectedIndex;
-            AppListViewSource.Source = ApplicationList;
-            AppListViewSource.View.SortDescriptions.Add(sd);
-            AppListGridView.Columns.First(x => x.Header.ToString() == sd.PropertyName).SortDirection = sd.Direction;
-            AppListGridView.SelectedIndex = PrevSelectedIndex;
-
+            Task.Run(() => { UpdateDataGrid(); });
         }
     }
 }

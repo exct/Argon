@@ -9,6 +9,7 @@ namespace Argon
 
         public ITable<NetworkTraffic> NetworkTraffic { get { return GetTable<NetworkTraffic>(); } }
         public ITable<ProcessCounter> ProcessCounters { get { return GetTable<ProcessCounter>(); } }
+        public ITable<Icon> Icons { get { return GetTable<Icon>(); } }
 
     }
 
@@ -67,6 +68,16 @@ namespace Argon
 
         [Column(Name = "ProcessorLoadPercent"), NotNull]
         public decimal ProcessorLoadPercent { get; set; }
+    }
+
+    [Table(Name = "Icons")]
+    public class Icon
+    {
+        [Column(Name = "Path"), NotNull]
+        public string Path { get; set; }
+
+        [Column(Name = "Icon"), NotNull]
+        public byte[] File { get; set; }
     }
 
 

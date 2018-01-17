@@ -19,6 +19,7 @@
                 <Setter Property="Control.HorizontalAlignment" Value="Right" />
             </Style>
             <Style x:Key="CellStyle" TargetType="{x:Type DataGridCell}">
+                <Setter Property="VerticalAlignment" Value="Center" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
                         <Setter Property="Background" Value="{x:Null}" />

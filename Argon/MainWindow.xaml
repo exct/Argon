@@ -48,19 +48,10 @@
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </Controls:MetroAnimatedSingleRowTabControl.Resources>
-            
+
             <TabItem Height="50">
                 <TabItem.Header>
-                    <Button>
-                        <Rectangle Width="30"
-                   Height="0"
-                   Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
-                            <Rectangle.OpacityMask>
-                                <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_graph_line_up}" />
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                    </Button>
-                    <!--<iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center" />-->
+                    <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
                 </TabItem.Header>
                 
                 <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl">
@@ -70,15 +61,15 @@
                         </Style>
                     </Controls:MetroAnimatedSingleRowTabControl.Resources>
                     
-                    <TabItem Height="30">
+                    <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
                         <TabItem.Header>
-                            <TextBlock Text="Network" FontSize="20" IsHitTestVisible="True" Margin="10 0 10 0"/>
+                            Network
                         </TabItem.Header>
                         <local:NetworkGraph></local:NetworkGraph>
                     </TabItem>
-                    <TabItem Height="30">
+                    <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
                         <TabItem.Header>
-                            <TextBlock Text="Processor" FontSize="20" IsHitTestVisible="True" Margin="10 0 10 0"/>
+                            Processor
                         </TabItem.Header>
 
                     </TabItem>
@@ -87,19 +78,19 @@
             
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" VerticalAlignment="Center"/>
+                    <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
             </TabItem>
             
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" VerticalAlignment="Center"/>
+                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
             </TabItem>
             
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" VerticalAlignment="Center"/>
+                    <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
             </TabItem>
             

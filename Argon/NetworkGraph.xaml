@@ -14,10 +14,6 @@
                 <Setter Property="PointGeometry" Value="{x:Null}"/>
                 <Setter Property="LineSmoothness" Value="0.7"/>
             </Style>
-            <!--<Style TargetType="lvc:Axis">
-                <Setter Property="ShowLabels" Value="False"></Setter>
-                <Setter Property="IsEnabled" Value="False"></Setter>
-            </Style>-->
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="5*"/>
@@ -28,16 +24,27 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <!--<TextBlock Foreground="#303030" FontSize="40" Text="{Binding LastValue, StringFormat={}{0:N1}}" />-->
-
         <lvc:CartesianChart Grid.Row="0" Grid.Column="0" Margin="10 0 10 0" DisableAnimations="True" AnimationsSpeed="0:0:0.3" Hoverable="False" DataTooltip="{x:Null}" >
             <lvc:CartesianChart.Series>
                 <lvc:LineSeries Values="{Binding SentValues}"
-                                Stroke="#CCFFFF00"
-                                Fill="#33FFFF00"/>
+                                Stroke="#CCFFFF00">
+                    <lvc:LineSeries.Fill>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#CCFFFF00" Offset="0"/>
+                            <GradientStop Color="#00FFFF00" Offset="1"/>
+                        </LinearGradientBrush>
+                    </lvc:LineSeries.Fill>
+                </lvc:LineSeries>
                 <lvc:LineSeries Values="{Binding RecvValues}"
-                                Stroke="#CC00FFFF"
-                                Fill="#3300FFFF"/>
+                                Stroke="#CC00FFFF" >
+                    <lvc:LineSeries.Fill>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#CC00FFFF" Offset="0"/>
+                            <GradientStop Color="#0000FFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </lvc:LineSeries.Fill>
+                </lvc:LineSeries>
+
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
@@ -58,12 +65,12 @@
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
 
-        <DataGrid x:Name="AppListGridView" Grid.Row="0" Grid.Column="1" Margin="0 0 20 0" ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True">
+        <DataGrid x:Name="AppListGridView" Grid.Row="0" Grid.Column="1" Margin="0 0 20 0" ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True" >
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <!--<Image Source="{Binding Icon}" />-->
+                            <Image Source="{Binding Icon}" Height="24" Width="24" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -71,6 +78,7 @@
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Setter Property="ToolTip" Value="{Binding Path}" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
                             <Style.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{x:Null}" />
@@ -84,11 +92,6 @@
                 <DataGridTextColumn Header="Recv" Binding="{Binding Recv}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
                 <DataGridTextColumn Header="Total" Binding="{Binding Total}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
             </DataGrid.Columns>
-            <!--<DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="IsHitTestVisible" Value="False"/>
-                </Style>
-            </DataGrid.RowStyle>-->
         </DataGrid>
 
         <lvc:CartesianChart x:Name="ScrollChart" Grid.Row="1" Grid.ColumnSpan="2" 

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Management;
 using System.Timers;
@@ -104,11 +105,11 @@ namespace Argon
                     ID = p.Id,
                     Name = p.ProcessName == "svchost" ?
                             (GetServiceName(p.Id) ??
-                                (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
-                                    (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
+                                (string.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
+                                    (string.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
                                         p.ProcessName : p.MainModule.FileVersionInfo.ProductName) : p.MainModule.FileVersionInfo.FileDescription)) :
-                            String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
-                                (String.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
+                            string.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.FileDescription) ?
+                                (string.IsNullOrWhiteSpace(p.MainModule.FileVersionInfo.ProductName) ?
                                     p.ProcessName : p.MainModule.FileVersionInfo.ProductName) : p.MainModule.FileVersionInfo.FileDescription,
                     Path = p.MainModule.FileName,
                     ProcessorTime = p.TotalProcessorTime.Ticks,
@@ -167,7 +168,7 @@ namespace Argon
                     if (TotalCpuTime == 0)
                         continue;
                     else
-                        p.ProcessorLoadPercent = Decimal.Round((p.ProcessorTimeDiff / (decimal)TotalCpuTime * TotalCpuLoadPct), 2);
+                        p.ProcessorLoadPercent = decimal.Round((p.ProcessorTimeDiff / (decimal)TotalCpuTime * TotalCpuLoadPct), 2);
             }
         }
 
@@ -177,7 +178,7 @@ namespace Argon
                 try {
                     db.BeginTransaction();
                     lock (ProcessDataList)
-                        foreach (ProcessData p in ProcessDataList)
+                        foreach (ProcessData p in ProcessDataList) {
                             if (p.ProcessorLoadPercent != 0)
                                 db.Insert(new ProcessCounter
                                 {
@@ -186,6 +187,7 @@ namespace Argon
                                     Path = p.Path,
                                     ProcessorLoadPercent = p.ProcessorLoadPercent
                                 });
+                        }
                     lock (NetworkTrafficList) {
                         foreach (NetworkTraffic n in NetworkTrafficList)
                             db.Insert(n);
@@ -206,6 +208,7 @@ namespace Argon
             public long ProcessorTimeDiff { get; set; }
             public decimal ProcessorLoadPercent { get; set; }
             public bool IsProtected { get; set; }
+            public byte[] Icon { get; set; }
         }
 
     }
