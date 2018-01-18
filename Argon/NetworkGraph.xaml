@@ -12,7 +12,7 @@
             <Style TargetType="lvc:LineSeries">
                 <Setter Property="StrokeThickness" Value="2"/>
                 <Setter Property="PointGeometry" Value="{x:Null}"/>
-                <Setter Property="LineSmoothness" Value="0.7"/>
+                <Setter Property="LineSmoothness" Value="0.6"/>
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>

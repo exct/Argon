@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -73,10 +74,7 @@ namespace Argon
         {
             Task.Run(() =>
             {
-                var Sent1 = GetLastValue(true, 3);
-                var Sent2 = GetLastValue(true, 2);
-                var Recv1 = GetLastValue(false, 3);
-                var Recv2 = GetLastValue(false, 2);
+                var GraphValues = GetLast2Values();
                 var AppList = new ObservableCollection<App>();
                 bool IsScrolling, AtStart, AtEnd, IsActive;
                 IsScrolling = AtStart = AtEnd = IsActive = false;
@@ -95,10 +93,10 @@ namespace Argon
                     RecvValues.RemoveAt(RecvValues.Count - 1);
                     SentValues.RemoveAt(0);
                     RecvValues.RemoveAt(0);
-                    SentValues.Add(Sent1);
-                    RecvValues.Add(Recv1);
-                    SentValues.Add(Sent2);
-                    RecvValues.Add(Recv2);
+                    SentValues.Add(GraphValues[0]);
+                    RecvValues.Add(GraphValues[1]);
+                    SentValues.Add(GraphValues[2]);
+                    RecvValues.Add(GraphValues[3]);
                     if (!IsScrolling)
                         if (AtStart) {
                             ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-61).Ticks;
@@ -178,25 +176,36 @@ namespace Argon
             }
         }
 
-        DateTimePoint GetLastValue(bool send, int sec)
+        List<DateTimePoint> GetLast2Values()
         {
-            var time = new DateTime(DateTime.Now.AddSeconds(-sec).Ticks.NextSecond());
-            int data;
+            var time = new DateTime(DateTime.Now.AddSeconds(-3).Ticks.NextSecond());
+            List<NetworkTraffic> data;
+            List<DateTimePoint> list = new List<DateTimePoint>();
             using (var db = new ArgonDB()) {
-                if (send)
-                    data = db.NetworkTraffic
-                             .Where(x => x.Time == time.Ticks)
-                             .GroupBy(x => x.Time)
-                             .Select(x => x.Sum(y => y.Sent))
-                             .FirstOrDefault();
-                else
-                    data = db.NetworkTraffic
-                             .Where(x => x.Time == time.Ticks)
-                             .GroupBy(x => x.Time)
-                             .Select(x => x.Sum(y => y.Recv))
-                             .FirstOrDefault();
+                data = db.NetworkTraffic
+                         .Where(x => x.Time.Between(time.Ticks, time.AddSeconds(1).Ticks))
+                         .GroupBy(x => x.Time)
+                         .Select(y => new NetworkTraffic
+                         {
+                             Time = y.First().Time,
+                             Sent = y.Sum(z => z.Sent),
+                             Recv = y.Sum(z => z.Recv)
+                         })
+                         .OrderBy(x => x.Time)
+                         .ToList();
             }
-            return new DateTimePoint(time, data);
+
+            for (var i = 0; i < 2; i++) {
+                if (data.Count > i) {
+                    list.Add(new DateTimePoint(time.AddSeconds(i), data[i].Sent));
+                    list.Add(new DateTimePoint(time.AddSeconds(i), data[i].Recv));
+                }
+                else {
+                    list.Add(new DateTimePoint(time.AddSeconds(i), 0));
+                    list.Add(new DateTimePoint(time.AddSeconds(i), 0));
+                }
+            }
+            return list;
 
         }
 
