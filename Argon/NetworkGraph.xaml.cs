@@ -45,13 +45,13 @@ namespace Argon
         public NetworkGraph()
         {
             InitializeComponent();
+            From = DateTime.Now.AddSeconds(-61).Ticks.NextSecond();
+            To = DateTime.Now.AddSeconds(-1).Ticks.NextSecond();
             mainWindow = (MainWindow)Application.Current.MainWindow;
             SentValues = new ChartValues<DateTimePoint>();
             RecvValues = new ChartValues<DateTimePoint>();
 
             GetValues(duration);
-            From = DateTime.Now.AddSeconds(-61).Ticks.NextSecond();
-            To = DateTime.Now.AddSeconds(-1).Ticks.NextSecond();
             Formatter = x => new DateTime((long)x).ToString("hh:mm:ss tt");
             AppListViewSource = new CollectionViewSource
             {
@@ -149,7 +149,6 @@ namespace Argon
                 var time = new DateTime(DateTime.Now.AddSeconds(-duration).Ticks.NextSecond());
                 var data = db.NetworkTraffic
                              .OrderBy(x => x.Time)
-                             .Take(100)
                              .Where(x => x.Time > time.Ticks)
                              .GroupBy(x => x.Time)
                              .Select(y => new
@@ -181,6 +180,8 @@ namespace Argon
             List<DateTimePoint> list = new List<DateTimePoint>();
             using (var db = new ArgonDB()) {
                 data = db.NetworkTraffic
+                         .OrderByDescending(x => x.Time)
+                         .Take(100)
                          .Where(x => x.Time.Between(time.Ticks, time.AddSeconds(1).Ticks))
                          .GroupBy(x => x.Time)
                          .Select(y => new NetworkTraffic
@@ -189,7 +190,6 @@ namespace Argon
                              Sent = y.Sum(z => z.Sent),
                              Recv = y.Sum(z => z.Recv)
                          })
-                         .OrderBy(x => x.Time)
                          .ToList();
             }
 

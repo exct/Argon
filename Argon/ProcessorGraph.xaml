@@ -12,7 +12,7 @@
             <Style TargetType="lvc:LineSeries">
                 <Setter Property="StrokeThickness" Value="2"/>
                 <Setter Property="PointGeometry" Value="{x:Null}"/>
-                <Setter Property="LineSmoothness" Value="0.7"/>
+                <Setter Property="LineSmoothness" Value="0.3"/>
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
@@ -26,25 +26,15 @@
 
         <lvc:CartesianChart Grid.Row="0" Grid.Column="0" Margin="10 0 10 0" DisableAnimations="True" AnimationsSpeed="0:0:0.3" Hoverable="False" DataTooltip="{x:Null}" >
             <lvc:CartesianChart.Series>
-                <lvc:LineSeries Values="{Binding SentValues}"
-                                Stroke="#CCFFFF00">
+                <lvc:LineSeries Values="{Binding ProcLoadValues}"
+                                Stroke="#CCFF0077">
                     <lvc:LineSeries.Fill>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#CCFFFF00" Offset="0"/>
-                            <GradientStop Color="#00FFFF00" Offset="1"/>
+                            <GradientStop Color="#CCFF0077" Offset="0"/>
+                            <GradientStop Color="#00FF0077" Offset="1"/>
                         </LinearGradientBrush>
                     </lvc:LineSeries.Fill>
                 </lvc:LineSeries>
-                <lvc:LineSeries Values="{Binding RecvValues}"
-                                Stroke="#CC00FFFF" >
-                    <lvc:LineSeries.Fill>
-                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                            <GradientStop Color="#CC00FFFF" Offset="0"/>
-                            <GradientStop Color="#0000FFFF" Offset="1"/>
-                        </LinearGradientBrush>
-                    </lvc:LineSeries.Fill>
-                </lvc:LineSeries>
-
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
@@ -61,7 +51,7 @@
                           MinValue="{Binding From, Mode=OneWay}" MaxValue="{Binding To, Mode=OneWay}" />
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis MinValue="0" />
+                <lvc:Axis MinValue="0" MaxValue="100"/>
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
 
@@ -88,9 +78,7 @@
                         </Style>
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Sent" Binding="{Binding Sent}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
-                <DataGridTextColumn Header="Recv" Binding="{Binding Recv}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
-                <DataGridTextColumn Header="Total" Binding="{Binding Total}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}"/>
+                <DataGridTextColumn Header="Processor" Binding="{Binding Processor}" ElementStyle="{StaticResource CellCenterAlign}" CellStyle="{StaticResource CellStyle}"/>
             </DataGrid.Columns>
         </DataGrid>
 
@@ -110,18 +98,15 @@
                 </Style>
             </lvc:CartesianChart.Resources>
             <lvc:CartesianChart.Series>
-                <lvc:LineSeries Values="{Binding SentValues}"
-                                Stroke="#CCFFFF00"
-                                Fill="#33FFFF00"/>
-                <lvc:LineSeries Values="{Binding RecvValues}"
-                                Stroke="#CC00FFFF"
-                                Fill="#3300FFFF"/>
+                <lvc:LineSeries Values="{Binding ProcLoadValues}"
+                                Stroke="#CCFF0077"
+                                Fill="#33FF0077"/>
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis ShowLabels="False" />
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis ShowLabels="False" />
+                <lvc:Axis ShowLabels="False" MinValue="0" MaxValue="100" />
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
     </Grid>

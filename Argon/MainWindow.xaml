@@ -71,7 +71,7 @@
                         <TabItem.Header>
                             Processor
                         </TabItem.Header>
-
+                        <local:ProcessorGraph></local:ProcessorGraph>
                     </TabItem>
                 </Controls:MetroAnimatedSingleRowTabControl>
             </TabItem>

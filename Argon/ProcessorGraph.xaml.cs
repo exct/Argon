@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
@@ -18,15 +19,10 @@ namespace Argon
 {
     public partial class ProcessorGraph : UserControl, INotifyPropertyChanged
     {
-        public ChartValues<DateTimePoint> ProcLoad { get; set; }
+        public ChartValues<DateTimePoint> ProcLoadValues { get; set; }
         public CollectionViewSource AppListViewSource { get; set; }
-        private ObservableCollection<App> _applicationList = new ObservableCollection<App>();
-        public ObservableCollection<App> ApplicationList
-        {
-            get { return GetAppList(); }
-            set { }
-        }
 
+        private MainWindow mainWindow;
         private int duration = 600;
         private double _lastValue;
         public double LastValue
@@ -46,18 +42,18 @@ namespace Argon
         public ProcessorGraph()
         {
             InitializeComponent();
-            ProcLoad = new ChartValues<DateTimePoint>();
-
-
-            GetValues(duration);
             From = DateTime.Now.AddSeconds(-61).Ticks.NextSecond();
             To = DateTime.Now.AddSeconds(-1).Ticks.NextSecond();
+            mainWindow = (MainWindow)Application.Current.MainWindow;
+
+            ProcLoadValues = new ChartValues<DateTimePoint>();
+            GetValues(duration);
             Formatter = x => new DateTime((long)x).ToString("hh:mm:ss tt");
             AppListViewSource = new CollectionViewSource
             {
-                Source = ApplicationList,
+                Source = GetAppList(),
             };
-            AppListViewSource.View.SortDescriptions.Add(new SortDescription("Total", ListSortDirection.Descending));
+            AppListViewSource.View.SortDescriptions.Add(new SortDescription("Processor", ListSortDirection.Descending));
 
             DataContext = this;
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -65,25 +61,27 @@ namespace Argon
             _timer.Start();
         }
 
-        private async void Run(object sender, System.EventArgs e)
+        private void Run(object sender, System.EventArgs e)
         {
-            await Task.Run(() =>
+            Task.Run(() =>
             {
-                var Sent1 = GetLastValue(3);
-                var Sent2 = GetLastValue(2);
-                var AppList = new ObservableCollection<App>();
-                bool IsScrolling, AtStart, AtEnd;
-                IsScrolling = AtStart = AtEnd = false;
+                var GraphValues = GetLast2Values();
+                bool IsScrolling, AtStart, AtEnd, IsActive;
+                IsScrolling = AtStart = AtEnd = IsActive = false;
 
                 Dispatcher.Invoke(new Action(() =>
                 {
+                    IsActive = mainWindow.MainTabControl.SelectedIndex == 0 && mainWindow.GraphTabControl.SelectedIndex == 1;
                     IsScrolling = ScrollChart.IsMouseCaptureWithin;
                     AtStart = ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks;
                     AtEnd = ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks;
-                    ProcLoad.RemoveAt(ProcLoad.Count - 1);
-                    ProcLoad.RemoveAt(0);
-                    ProcLoad.Add(Sent1);
-                    ProcLoad.Add(Sent2);
+                }));
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    ProcLoadValues.RemoveAt(ProcLoadValues.Count - 1);
+                    ProcLoadValues.RemoveAt(0);
+                    ProcLoadValues.AddRange(GraphValues);
                     if (!IsScrolling)
                         if (AtStart) {
                             ScrollChart.ScrollHorizontalFrom = From = DateTime.Now.AddSeconds(-61).Ticks;
@@ -95,16 +93,16 @@ namespace Argon
                         }
                 }));
 
-                if (!IsScrolling && (AtEnd || AtStart))
+                if (IsActive && !IsScrolling && (AtEnd || AtStart))
                     UpdateDataGrid();
             });
         }
 
         protected void UpdateDataGrid()
         {
-            var AppList = ApplicationList;
+            var AppList = GetAppList();
 
-            Dispatcher.Invoke(new Action(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 SortDescription sd = AppListViewSource.View.SortDescriptions.FirstOrDefault();
                 int PrevSelectedIndex = AppListGridView.SelectedIndex;
@@ -115,21 +113,21 @@ namespace Argon
             }));
         }
 
-        protected ObservableCollection<App> GetAppList()
+        protected List<App> GetAppList()
         {
             using (var db = new ArgonDB()) {
-                return db.NetworkTraffic
-                         .Where(x => (double)x.Time > From && (double)x.Time < To)
-                         .GroupBy(x => x.ApplicationName)
+                return db.ProcessCounters
+                         .OrderByDescending(x => x.Time)
+                         .Take(6000)
+                         .Where(x => ((double)x.Time).Between(From, To))
+                         .GroupBy(x => x.Name)
                          .Select(y => new App
                          {
-                             Icon = y.First().FilePath.GetIcon(),
-                             Name = y.First().ApplicationName,
-                             Path = y.First().FilePath,
-                             Sent = y.Sum(z => z.Sent),
-                             Recv = y.Sum(z => z.Recv),
-                             Total = y.Sum(z => z.Sent) + y.Sum(z => z.Recv)
-                         }).ToObservableCollection();
+                             Icon = y.First().Path.GetIcon(),
+                             Name = y.First().Name,
+                             Path = y.First().Path,
+                             Processor = Math.Round(y.Sum(z => z.ProcessorLoadPercent) / 60, 2)
+                         }).ToList();
             }
         }
 
@@ -137,48 +135,50 @@ namespace Argon
         {
             using (var db = new ArgonDB()) {
                 var time = new DateTime(DateTime.Now.AddSeconds(-duration).Ticks.NextSecond());
-                var data = db.NetworkTraffic
-                             .Where(x => x.Time > time.Ticks)
+                var data = db.ProcessCounters
                              .OrderBy(x => x.Time)
+                             .Where(x => x.Time > time.Ticks)
                              .GroupBy(x => x.Time)
                              .Select(y => new
                              {
                                  Time = y.Select(z => z.Time).First(),
-                                 Sent = y.Sum(z => z.Sent),
-                                 Recv = y.Sum(z => z.Recv)
+                                 ProcLoad = y.Sum(z => z.ProcessorLoadPercent)
                              }).ToList();
 
                 for (int i = 0; i < duration; i++) {
                     var _time = time.AddSeconds(i);
                     var val = data.Where(x => x.Time == _time.Ticks).FirstOrDefault();
                     if (val != null) {
-                        ProcLoad.Add(new DateTimePoint(_time, val.Sent));
+                        ProcLoadValues.Add(new DateTimePoint(_time, (double)val.ProcLoad));
                     }
                     else {
-                        ProcLoad.Add(new DateTimePoint(_time, 0));
+                        ProcLoadValues.Add(new DateTimePoint(_time, 0));
                     }
                 }
             }
         }
 
-        DateTimePoint GetLastValue(int sec)
+        List<DateTimePoint> GetLast2Values()
         {
-            var time = new DateTime(DateTime.Now.AddSeconds(-sec).Ticks.NextSecond());
-            int data;
+            var time = new DateTime(DateTime.Now.AddSeconds(-3).Ticks.NextSecond());
             using (var db = new ArgonDB()) {
-                data = db.NetworkTraffic
-                         .Where(x => x.Time == time.Ticks)
+                return db.ProcessCounters
+                         .OrderByDescending(x => x.Time)
+                         .Take(1000)
+                         .Where(x => x.Time.Between(time.Ticks, time.AddSeconds(1).Ticks))
                          .GroupBy(x => x.Time)
-                         .Select(x => x.Sum(y => y.Recv))
-                         .FirstOrDefault();
+                         .Select(y => new DateTimePoint
+                         {
+                             DateTime = new DateTime(y.First().Time),
+                             Value = (double)y.Sum(z => z.ProcessorLoadPercent)
+                         })
+                         .ToList();
             }
-            return new DateTimePoint(time, data);
-
         }
 
         private void SetValue()
         {
-            LastValue = ProcLoad.Last().Value;
+            LastValue = ProcLoadValues.Last().Value;
         }
 
 
@@ -242,9 +242,7 @@ namespace Argon
             public BitmapSource Icon { get; set; }
             public string Name { get; set; }
             public string Path { get; set; }
-            public int Sent { get; set; }
-            public int Recv { get; set; }
-            public int Total { get; set; }
+            public decimal Processor { get; set; }
         }
 
 
