@@ -1,9 +1,10 @@
 ﻿using LinqToDB;
+using LinqToDB.Data;
 using LinqToDB.Mapping;
 
 namespace Argon
 {
-    public class ArgonDB : LinqToDB.Data.DataConnection
+    public class ArgonDB : DataConnection
     {
         public ArgonDB() : base("ArgonDB") { }
 

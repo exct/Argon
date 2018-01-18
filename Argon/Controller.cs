@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Management;
 using System.Timers;
@@ -180,7 +179,7 @@ namespace Argon
                     lock (ProcessDataList)
                         foreach (ProcessData p in ProcessDataList) {
                             if (p.ProcessorLoadPercent != 0)
-                                db.Insert(new ProcessCounter
+                                db.InsertAsync(new ProcessCounter
                                 {
                                     Time = p.Time,
                                     Name = p.Name,
@@ -190,7 +189,7 @@ namespace Argon
                         }
                     lock (NetworkTrafficList) {
                         foreach (NetworkTraffic n in NetworkTrafficList)
-                            db.Insert(n);
+                            db.InsertAsync(n);
                         NetworkTrafficList.Clear();
                     }
                     db.CommitTransaction();

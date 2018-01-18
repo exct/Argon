@@ -24,11 +24,6 @@ namespace Argon
         public ChartValues<DateTimePoint> RecvValues { get; set; }
         public CollectionViewSource AppListViewSource { get; set; }
         private ObservableCollection<App> _applicationList = new ObservableCollection<App>();
-        public ObservableCollection<App> ApplicationList
-        {
-            get { return GetAppList(); }
-            set { }
-        }
 
         private MainWindow mainWindow;
         private int duration = 600;
@@ -60,7 +55,7 @@ namespace Argon
             Formatter = x => new DateTime((long)x).ToString("hh:mm:ss tt");
             AppListViewSource = new CollectionViewSource
             {
-                Source = ApplicationList,
+                Source = GetAppList(),
             };
             AppListViewSource.View.SortDescriptions.Add(new SortDescription("Total", ListSortDirection.Descending));
 
@@ -115,7 +110,7 @@ namespace Argon
 
         protected void UpdateDataGrid()
         {
-            var AppList = ApplicationList;
+            var AppList = GetAppList();
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -132,6 +127,8 @@ namespace Argon
         {
             using (var db = new ArgonDB()) {
                 return db.NetworkTraffic
+                         .OrderByDescending(x => x.Time)
+                         .Take(1000)
                          .Where(x => ((double)x.Time).Between(From, To))
                          .GroupBy(x => x.ApplicationName)
                          .Select(y => new App
@@ -151,8 +148,9 @@ namespace Argon
             using (var db = new ArgonDB()) {
                 var time = new DateTime(DateTime.Now.AddSeconds(-duration).Ticks.NextSecond());
                 var data = db.NetworkTraffic
-                             .Where(x => x.Time > time.Ticks)
                              .OrderBy(x => x.Time)
+                             .Take(100)
+                             .Where(x => x.Time > time.Ticks)
                              .GroupBy(x => x.Time)
                              .Select(y => new
                              {
