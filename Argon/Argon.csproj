@@ -130,7 +130,7 @@
     </ApplicationDefinition>
     <Compile Include="EtwMonitor.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Page Include="NetworkGraph.xaml">
+    <Page Include="Graph.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -143,17 +143,13 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="EntityClasses.cs" />
-    <Compile Include="NetworkGraph.xaml.cs">
-      <DependentUpon>NetworkGraph.xaml</DependentUpon>
+    <Compile Include="Graph.xaml.cs">
+      <DependentUpon>Graph.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ProcessorGraph.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Resources\Icons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -165,9 +161,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller.cs" />
-    <Compile Include="ProcessorGraph.xaml.cs">
-      <DependentUpon>ProcessorGraph.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

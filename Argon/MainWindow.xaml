@@ -15,7 +15,6 @@
                       WindowStartupLocation="CenterScreen"
                       GlowBrush="{DynamicResource AccentColorBrush}">
 
-
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button Content="settings" />
@@ -54,26 +53,8 @@
                     <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
                 </TabItem.Header>
                 
-                <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl">
-                    <Controls:MetroAnimatedSingleRowTabControl.Resources>
-                        <Style TargetType="{x:Type TabPanel}">
-                            <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
-                    </Controls:MetroAnimatedSingleRowTabControl.Resources>
-                    
-                    <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
-                        <TabItem.Header>
-                            Network
-                        </TabItem.Header>
-                        <local:NetworkGraph></local:NetworkGraph>
-                    </TabItem>
-                    <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
-                        <TabItem.Header>
-                            Processor
-                        </TabItem.Header>
-                        <local:ProcessorGraph></local:ProcessorGraph>
-                    </TabItem>
-                </Controls:MetroAnimatedSingleRowTabControl>
+                <local:Graph></local:Graph>
+                
             </TabItem>
             
             <TabItem Height="50">

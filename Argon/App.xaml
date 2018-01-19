@@ -17,6 +17,7 @@
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="CellRightAlign">
                 <Setter Property="Control.HorizontalAlignment" Value="Right" />
+                <Setter Property="Control.Margin" Value="5 0 5 0" />
             </Style>
             <Style x:Key="CellCenterAlign">
                 <Setter Property="Control.HorizontalAlignment" Value="Center" />
@@ -30,6 +31,8 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+            <local:DataSizeConverter x:Key="AddSizeSuffix"/>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         </ResourceDictionary>
 
     </Application.Resources>
