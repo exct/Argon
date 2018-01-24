@@ -89,15 +89,15 @@ namespace Argon
             ProcAppListViewSource.View.SortDescriptions.Add(new SortDescription("Processor", ListSortDirection.Descending));
 
             Formatter = x => new DateTime((long)x).ToString("hh:mm:ss tt");
-            NetLabelFormatter = x => ((int)x).AddSizeSuffix() + "/s";
+            NetLabelFormatter = x => x.AddSizeSuffix() + "/s";
 
             DataContext = this;
-            _timer.Interval = TimeSpan.FromMilliseconds(950);
-            _timer.Tick += new System.EventHandler(Run);
+            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Tick += new EventHandler(Run);
             _timer.Start();
         }
 
-        private void Run(object sender, System.EventArgs e)
+        private void Run(object sender, EventArgs e)
         {
             Task.Run(() =>
             {
@@ -140,8 +140,11 @@ namespace Argon
                         }
                 }));
 
-                if (IsActive && !IsScrolling && (AtEnd || AtStart))
-                    UpdateDataGrid();
+                Task.Run(() =>
+                {
+                    if (IsActive && !IsScrolling && (AtEnd || AtStart))
+                        UpdateDataGrid();
+                });
             });
         }
 
@@ -183,7 +186,7 @@ namespace Argon
             using (var db = new ArgonDB()) {
                 return db.NetworkTraffic
                          .OrderByDescending(x => x.Time)
-                         .Take(6000)
+                         .Take(30000)
                          .Where(x => ((double)x.Time).Between(From, To))
                          .GroupBy(x => x.ApplicationName)
                          .Select(y => new NetApp
@@ -221,7 +224,8 @@ namespace Argon
             using (var db = new ArgonDB()) {
                 var time = new DateTime(DateTime.Now.AddSeconds(-duration).Ticks.NextSecond());
                 var data = db.NetworkTraffic
-                             .OrderBy(x => x.Time)
+                             .OrderByDescending(x => x.Time)
+                             .Take(30000)
                              .Where(x => x.Time > time.Ticks)
                              .GroupBy(x => x.Time)
                              .Select(y => new
@@ -251,7 +255,8 @@ namespace Argon
             using (var db = new ArgonDB()) {
                 var time = new DateTime(DateTime.Now.AddSeconds(-duration).Ticks.NextSecond());
                 var data = db.ProcessCounters
-                             .OrderBy(x => x.Time)
+                             .OrderByDescending(x => x.Time)
+                             .Take(200000)
                              .Where(x => x.Time > time.Ticks)
                              .GroupBy(x => x.Time)
                              .Select(y => new
@@ -319,7 +324,7 @@ namespace Argon
                          .Select(y => new DateTimePoint
                          {
                              DateTime = new DateTime(y.First().Time),
-                             Value = (double)y.Sum(z => z.ProcessorLoadPercent)
+                             Value = y.Sum(z => z.ProcessorLoadPercent)
                          })
                          .ToList();
             }
@@ -351,12 +356,6 @@ namespace Argon
                 OnPropertyChanged("NetLabelFormatter");
             }
         }
-
-        //private void Axis_RangeChanged(RangeChangedEventArgs eventArgs)
-        //{
-        //    MainGraph.AxisY[0].Separator.Step = eventArgs.Range / 5;
-        //    NetLabelFormatter = x => ((int)x).AddSizeSuffix() + "/s";
-        //}
 
         public Func<double, string> Formatter
         {
@@ -400,9 +399,9 @@ namespace Argon
             public BitmapSource Icon { get; set; }
             public string Name { get; set; }
             public string Path { get; set; }
-            public int Sent { get; set; }
-            public int Recv { get; set; }
-            public int Total { get; set; }
+            public double Sent { get; set; }
+            public double Recv { get; set; }
+            public double Total { get; set; }
         }
 
         public class ProcApp
@@ -410,7 +409,7 @@ namespace Argon
             public BitmapSource Icon { get; set; }
             public string Name { get; set; }
             public string Path { get; set; }
-            public decimal Processor { get; set; }
+            public double Processor { get; set; }
         }
 
         private void CartesianChart_LostMouseCapture(object sender, System.Windows.Input.MouseEventArgs e)

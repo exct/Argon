@@ -19,7 +19,7 @@ namespace Argon
         static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
         static List<Process> ProcessList = new List<Process>();
         static Timer timer = new Timer(1000);
-        static decimal TotalCpuLoadPct = 0;
+        static float TotalCpuLoadPct = 0;
         static long TotalCpuTime = 0;
         static long CurrentTime;
         static PerformanceCounter TotalCpuLoadCounter = new PerformanceCounter()
@@ -144,7 +144,7 @@ namespace Argon
         {
             UpdateProcessDataList();
             TotalCpuTime = 0;
-            TotalCpuLoadPct = (decimal)TotalCpuLoadCounter.NextValue();
+            TotalCpuLoadPct = TotalCpuLoadCounter.NextValue();
             CurrentTime = DateTime.Now.Ticks.NextSecond();
 
             lock (ProcessDataList) {
@@ -164,10 +164,10 @@ namespace Argon
                     }
 
                 foreach (ProcessData p in ProcessDataList)
-                    if (TotalCpuTime == 0)
-                        continue;
+                    if (p.ProcessorTimeDiff <= 0)
+                        p.ProcessorLoadPercent = 0;
                     else
-                        p.ProcessorLoadPercent = decimal.Round((p.ProcessorTimeDiff / (decimal)TotalCpuTime * TotalCpuLoadPct), 2);
+                        p.ProcessorLoadPercent = Math.Round((p.ProcessorTimeDiff / (double)TotalCpuTime * TotalCpuLoadPct), 2);
             }
         }
 
@@ -205,7 +205,7 @@ namespace Argon
             public string Path { get; set; }
             public long ProcessorTime { get; set; }
             public long ProcessorTimeDiff { get; set; }
-            public decimal ProcessorLoadPercent { get; set; }
+            public double ProcessorLoadPercent { get; set; }
             public bool IsProtected { get; set; }
             public byte[] Icon { get; set; }
         }

@@ -14,7 +14,7 @@ namespace Argon
     {
         static readonly string[] SizeSuffixes = { " B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 
-        public static string AddSizeSuffix(this int value)
+        public static string AddSizeSuffix(this double value)
         {
 
             if (value < 0) { return "-" + AddSizeSuffix(-value); }
@@ -73,7 +73,8 @@ namespace Argon
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return ((int)value).AddSizeSuffix();
+            if (value == null) return null;
+            return ((double)value).AddSizeSuffix();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

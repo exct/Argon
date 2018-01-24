@@ -22,7 +22,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" 
+                        Margin="0 10 0 0">
                 <CheckBox Name="ProcToggle" Content="Processor" IsChecked="{Binding ProcSeriesVisibility}" Margin="20 0"/>
                 <CheckBox Name="SendToggle"  Content="Network Send" IsChecked="{Binding SendSeriesVisibility}" Margin="10 0"/>
                 <CheckBox Name="RecvToggle"  Content="Network Receive" IsChecked="{Binding RecvSeriesVisibility}" Margin="10 0"/>
@@ -82,8 +83,8 @@
                           MinValue="{Binding From, Mode=OneWay}" MaxValue="{Binding To, Mode=OneWay}" />
                 </lvc:CartesianChart.AxisX>
                 <lvc:CartesianChart.AxisY>
-                    <lvc:Axis Title="Network Transfer Rate" MinValue="0" FontSize="13" IsMerged="True" LabelFormatter="{Binding NetLabelFormatter, Mode=OneTime}" Foreground="#CC88EECC" />
-                    <lvc:Axis Title="Processor Load %" Position="RightTop" MinValue="0" MaxValue="100" FontSize="13" Foreground="#CCFF0077" >
+                    <lvc:Axis Title="Network Transfer Rate" MinValue="0" FontSize="14" IsMerged="True" LabelFormatter="{Binding NetLabelFormatter, Mode=OneTime}" Foreground="#CC88EECC" />
+                    <lvc:Axis Title="Processor Load %" Position="RightTop" MinValue="0" MaxValue="100" FontSize="14" Foreground="#CCFF0077">
                         <lvc:Axis.Separator>
                             <lvc:Separator IsEnabled="False" Step="20" Height="100"></lvc:Separator>
                         </lvc:Axis.Separator>
@@ -193,12 +194,15 @@
             </lvc:CartesianChart.Resources>
             <lvc:CartesianChart.Series>
                 <lvc:LineSeries Values="{Binding SentValues}"
+                                Visibility="{Binding SendSeriesVisibility, Converter={StaticResource BoolToVis}}"
                                 Stroke="#CCFFFF00"
                                 Fill="#33FFFF00"/>
                 <lvc:LineSeries Values="{Binding RecvValues}"
+                                Visibility="{Binding RecvSeriesVisibility, Converter={StaticResource BoolToVis}}"
                                 Stroke="#CC00FFFF"
                                 Fill="#3300FFFF"/>
                 <lvc:LineSeries Values="{Binding ProcLoadValues}"
+                                Visibility="{Binding ProcSeriesVisibility, Converter={StaticResource BoolToVis}}"
                                 Stroke="#CCFF0077" ScalesYAt="1"
                                 Fill="#33FF0077"/>
             </lvc:CartesianChart.Series>

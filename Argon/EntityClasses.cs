@@ -18,7 +18,7 @@ namespace Argon
     public class NetworkTraffic
     {
         [Column(Name = "Time"), NotNull]
-        public decimal Time { get; set; }
+        public long Time { get; set; }
 
         [Column(Name = "ApplicationName"), NotNull]
         public string ApplicationName { get; set; }
@@ -30,22 +30,22 @@ namespace Argon
         public string FilePath { get; set; }
 
         [Column(Name = "Sent"), NotNull]
-        public int Sent { get; set; }
+        public double Sent { get; set; }
 
         [Column(Name = "Recv"), NotNull]
-        public int Recv { get; set; }
+        public double Recv { get; set; }
 
         [Column(Name = "SourceAddr"), NotNull]
         public string SourceAddr { get; set; }
 
         [Column(Name = "SourcePort"), NotNull]
-        public string SourcePort { get; set; }
+        public int SourcePort { get; set; }
 
         [Column(Name = "DestAddr"), NotNull]
         public string DestAddr { get; set; }
 
         [Column(Name = "DestPort"), NotNull]
-        public string DestPort { get; set; }
+        public int DestPort { get; set; }
 
         [Column(Name = "Type"), NotNull]
         public int Type { get; set; }
@@ -67,7 +67,7 @@ namespace Argon
         public string Path { get; set; }
 
         [Column(Name = "ProcessorLoadPercent"), NotNull]
-        public decimal ProcessorLoadPercent { get; set; }
+        public double ProcessorLoadPercent { get; set; }
     }
 
 }
