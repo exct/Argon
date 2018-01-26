@@ -9,7 +9,7 @@
                       xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                       xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
                       mc:Ignorable="d"
-                      Title="MainWindow" 
+                      Title="Argon" 
                       Height="600" 
                       Width="1000" 
                       WindowStartupLocation="CenterScreen"
@@ -52,8 +52,8 @@
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
                 </TabItem.Header>
-                
-                <local:Graph></local:Graph>
+
+                <local:Graph/>
                 
             </TabItem>
             
@@ -62,7 +62,7 @@
                     <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
 
-                <local:Usage></local:Usage>
+                <local:Usage/>
 
             </TabItem>
             
@@ -70,6 +70,9 @@
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
+
+                <local:FirewallUI/>
+
             </TabItem>
             
             <TabItem Height="50">

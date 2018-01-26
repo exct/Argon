@@ -77,6 +77,12 @@ namespace Argon
                                             Type = 1,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        //if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                        //    if (Controller.BlockNewConnections)
+                                                
+                                        //}
+
                                     }
                         }
                         catch { }

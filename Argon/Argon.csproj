@@ -132,10 +132,19 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="EtwMonitor.cs" />
+    <Compile Include="EventReader.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Firewall.cs" />
+    <Compile Include="FirewallUI.xaml.cs">
+      <DependentUpon>FirewallUI.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Usage.xaml.cs">
       <DependentUpon>Usage.xaml</DependentUpon>
     </Compile>
+    <Page Include="FirewallUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Graph.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -227,6 +236,17 @@
   </ItemGroup>
   <ItemGroup>
     <SplashScreen Include="atom%400,5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="NetFwTypeLib">
+      <Guid>{58FBCF7C-E7A9-467C-80B3-FC65E8FCCA08}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

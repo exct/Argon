@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
+using System.Threading.Tasks;
 using System.Timers;
 
 using LinqToDB;
@@ -12,9 +13,15 @@ namespace Argon
 {
     public sealed class Controller
     {
+        public static bool BlockNewConnections;
+        public static bool NotifyNewConnections;
+        //public static bool SuspendHighCpu;
+        //public static List<string> CpuSuspendWhitelist = new List<string>();
+
         public static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
         public static List<ProcessData> ProcessDataList = new List<ProcessData>();
         public static List<int> NewProcesses = new List<int>();
+        public static List<string> NetworkProcessList = new List<string>();
         public static ConcurrentDictionary<int, string> Services = new ConcurrentDictionary<int, string>();
         static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
         static List<Process> ProcessList = new List<Process>();
@@ -31,8 +38,9 @@ namespace Argon
 
         public static void Initialize()
         {
-            Process.EnterDebugMode();
-            TotalCpuLoadCounter.NextValue();
+            Firewall.Initialize();
+            Task.Run(() => { TotalCpuLoadCounter.NextValue(); });
+            NetworkProcessList = GetNetworkProcessList();
             GetServices();
             GetCurrentProcesses();
             InitProcessDataList();
@@ -74,8 +82,10 @@ namespace Argon
         {
             lock (ProcessDataList)
                 lock (ProcessList)
-                    foreach (Process p in ProcessList)
+                    Parallel.ForEach(ProcessList, (p) =>
+                    {
                         AddToProcessDataList(p);
+                    });
         }
 
         static void UpdateProcessDataList()
@@ -177,7 +187,7 @@ namespace Argon
                 try {
                     db.BeginTransaction();
                     lock (ProcessDataList)
-                        foreach (ProcessData p in ProcessDataList) {
+                        foreach (ProcessData p in ProcessDataList)
                             if (p.ProcessorLoadPercent != 0)
                                 db.InsertAsync(new ProcessCounter
                                 {
@@ -186,7 +196,7 @@ namespace Argon
                                     Path = p.Path,
                                     ProcessorLoadPercent = p.ProcessorLoadPercent
                                 });
-                        }
+
                     lock (NetworkTrafficList) {
                         foreach (NetworkTraffic n in NetworkTrafficList)
                             db.InsertAsync(n);
@@ -195,6 +205,15 @@ namespace Argon
                     db.CommitTransaction();
                 }
                 catch { db.RollbackTransaction(); }
+        }
+
+        static List<string> GetNetworkProcessList()
+        {
+            using (var db = new ArgonDB())
+                return db.NetworkTraffic
+                         .Select(x => x.FilePath)
+                         .Distinct()
+                         .ToList();
         }
 
         public class ProcessData
