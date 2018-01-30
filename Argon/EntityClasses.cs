@@ -10,7 +10,8 @@ namespace Argon
 
         public ITable<NetworkTraffic> NetworkTraffic { get { return GetTable<NetworkTraffic>(); } }
         public ITable<ProcessCounter> ProcessCounters { get { return GetTable<ProcessCounter>(); } }
-
+        public ITable<Config> Config { get { return GetTable<Config>(); } }
+        public ITable<WhitelistedApp> CpuSuspendWhitelist { get { return GetTable<WhitelistedApp>(); } }
     }
 
 
@@ -68,6 +69,24 @@ namespace Argon
 
         [Column(Name = "ProcessorLoadPercent"), NotNull]
         public double ProcessorLoadPercent { get; set; }
+    }
+
+    [Table(Name = "Config")]
+    public class Config
+    {
+        [Column(Name = "Name"), NotNull]
+        public string Name { get; set; }
+
+        [Column(Name = "Value"), NotNull]
+        public int Value { get; set; }
+    }
+
+    [Table(Name = "CpuSuspendWhitelist")]
+    public class WhitelistedApp
+    {
+        [Column(Name = "Path"), NotNull]
+        public string Path { get; set; }
+
     }
 
 }

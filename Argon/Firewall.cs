@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -40,6 +41,46 @@ namespace Argon
             if (!FirewallPolicy.Rules.Cast<INetFwRule>().Any(x => x.Grouping == "Argon"))
                 FirewallPolicy.Rules.Add(ArgonFirewallRule);
         }
+
+        public static List<FirewallRule> GetFirewallRules()
+        {
+            var rules = new List<FirewallRule>();
+
+            foreach (INetFwRule rule in Firewall.FirewallPolicy.Rules.Cast<INetFwRule>().Where(x => x.Grouping == "Argon")) {
+                if (!rules.Exists(x => x.Name == rule.Name) && rule.Name != "Argon")
+                    rules.Add(new FirewallRule
+                    {
+                        Action = rule.Action == NET_FW_ACTION_.NET_FW_ACTION_ALLOW ? true : false,
+                        Name = rule.Name,
+                        Path = rule.ApplicationName,
+                    });
+            }
+
+            foreach (FirewallRule r in rules)
+                r.Name = r.Name.Split(new string[] { "__" }, StringSplitOptions.None)[0];
+
+            foreach (FirewallRule app in GetAppsList())
+                if (!rules.Any(x => x.Name == app.Name && x.Path == app.Path))
+                    rules.Add(app);
+
+            return rules;
+
+
+            List<FirewallRule> GetAppsList()
+            {
+                using (var db = new ArgonDB())
+                    return db.NetworkTraffic
+                             .Select(x => new FirewallRule
+                             {
+                                 Path = x.FilePath,
+                                 Name = x.ApplicationName,
+                                 Action = null
+                             })
+                             .Distinct()
+                             .ToList();
+            }
+        }
+
 
         public static void SetRule(string applicationName, string path, bool allow)
         {
@@ -127,4 +168,13 @@ namespace Argon
             FirewallPolicy.EnableRuleGroup((int)NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_ALL, "Argon", enable);
         }
     }
+
+    public class FirewallRule
+    {
+        public bool? Action { get; set; }
+        public string Name { get; set; }
+        public string Path { get; set; }
+    }
+
+
 }

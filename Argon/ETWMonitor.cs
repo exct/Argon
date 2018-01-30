@@ -78,11 +78,17 @@ namespace Argon
                                             ProcessID = data.ProcessID
                                         });
 
-                                        //if (!Controller.NetworkProcessList.Contains(p.Path)) {
-                                        //    if (Controller.BlockNewConnections)
-                                                
-                                        //}
-
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -125,6 +131,18 @@ namespace Argon
                                             Type = 1,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -167,6 +185,18 @@ namespace Argon
                                             Type = 2,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -209,6 +239,18 @@ namespace Argon
                                             Type = 2,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -251,6 +293,18 @@ namespace Argon
                                             Type = 3,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -293,6 +347,18 @@ namespace Argon
                                             Type = 3,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -335,6 +401,18 @@ namespace Argon
                                             Type = 4,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }
@@ -377,6 +455,18 @@ namespace Argon
                                             Type = 4,
                                             ProcessID = data.ProcessID
                                         });
+
+                                        lock (Controller.NetworkProcessList)
+                                            if (!Controller.NetworkProcessList.Contains(p.Path)) {
+                                                Controller.NetworkProcessList.Add(p.Path);
+                                                if (Controller.BlockNewConnections) {
+                                                    Firewall.SetRule(p.Name, p.Path, false);
+                                                    if (Controller.NotifyBlockedConnection)
+                                                        Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
+                                                }
+                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                    Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
+                                            }
                                     }
                         }
                         catch { }

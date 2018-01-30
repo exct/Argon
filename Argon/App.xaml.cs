@@ -13,9 +13,10 @@ namespace Argon
 
             var mainWindow = new MainWindow();
             mainWindow.Show();
+
         }
 
-        private static string GetWindowsVersion()
+        private string GetWindowsVersion()
         {
             OperatingSystem oSVersion = Environment.OSVersion;
             switch (oSVersion.Version.Major) {
@@ -39,7 +40,7 @@ namespace Argon
             return "10";
         }
 
-        private static void UnsupportedWindowsVer(string ver)
+        private void UnsupportedWindowsVer(string ver)
         {
             MessageBox.Show("Windows " + ver + " not supported.", "Error",
                             MessageBoxButton.OK, MessageBoxImage.Error,

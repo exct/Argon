@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,8 +7,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 
 using MahApps.Metro.Controls;
-
-using NetFwTypeLib;
 
 namespace Argon
 {
@@ -20,64 +17,34 @@ namespace Argon
         public FirewallUI()
         {
             InitializeComponent();
+            RulesListViewSource = new CollectionViewSource();
+            RefreshRuleList();
             LockdownState.IsChecked = Firewall.GetLockdownState();
             FirewallState.IsChecked = Firewall.GetEnabledState();
-            RulesListViewSource = new CollectionViewSource();
-            RefreshList(null, null);
             DataContext = this;
         }
 
-        public class FirewallRule
-        {
-            public bool? Action { get; set; }
-            public string Name { get; set; }
-            public string Path { get; set; }
-        }
-
-        public void GetFirewallRules()
+        public void RefreshRuleList()
         {
             Task.Run(() =>
             {
-                var rules = new List<FirewallRule>();
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    btnRefresh.IsEnabled = false;
+                    RulesListViewSource.Source = null;
+                    ProgressBar1.Visibility = Visibility.Visible;
+                }));
 
-                foreach (INetFwRule rule in Firewall.FirewallPolicy.Rules.Cast<INetFwRule>().Where(x => x.Grouping == "Argon")) {
-                    if (!rules.Exists(x => x.Name == rule.Name) && rule.Name != "Argon")
-                        rules.Add(new FirewallRule
-                        {
-                            Action = rule.Action == NET_FW_ACTION_.NET_FW_ACTION_ALLOW ? true : false,
-                            Name = rule.Name,
-                            Path = rule.ApplicationName,
-                        });
-                }
-
-                foreach (FirewallRule r in rules)
-                    r.Name = r.Name.Split(new string[] { "__" }, StringSplitOptions.None)[0];
-
-                foreach (FirewallRule app in GetAppsList())
-                    if (!rules.Any(x => x.Name == app.Name && x.Path == app.Path))
-                        rules.Add(app);
+                List<FirewallRule> rules = Firewall.GetFirewallRules();
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    btnRefresh.IsEnabled = true;
+                    ProgressBar1.Visibility = Visibility.Collapsed;
                     RulesListViewSource.Source = rules;
                 }));
             });
-
-            List<FirewallRule> GetAppsList()
-            {
-                using (var db = new ArgonDB())
-                    return db.NetworkTraffic
-                             .Select(x => new FirewallRule
-                             {
-                                 Name = x.ApplicationName,
-                                 Path = x.FilePath,
-                                 Action = null
-                             })
-                             .Distinct()
-                             .ToList();
-            }
         }
-
 
 
         private void LockdownState_IsCheckedChanged(object sender, EventArgs e)
@@ -91,7 +58,7 @@ namespace Argon
 
         private void RefreshList(object sender, System.Windows.RoutedEventArgs e)
         {
-            GetFirewallRules();
+            RefreshRuleList();
         }
 
         private void ChangeAppFirewallRule(object sender, System.Windows.RoutedEventArgs e)

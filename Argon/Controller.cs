@@ -6,30 +6,38 @@ using System.Linq;
 using System.Management;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 
 using LinqToDB;
+
+using ToastNotifications;
+using ToastNotifications.Lifetime;
+using ToastNotifications.Position;
 
 namespace Argon
 {
     public sealed class Controller
     {
-        public static bool BlockNewConnections;
-        public static bool NotifyNewConnections;
-        //public static bool SuspendHighCpu;
-        //public static List<string> CpuSuspendWhitelist = new List<string>();
+        public static bool NotifyNewApplication { get; private set; }
+        public static bool BlockNewConnections { get; private set; }
+        public static bool NotifyBlockedConnection { get; private set; }
+        public static bool SuspendHighCpu { get; private set; }
+        public static List<string> CpuSuspendWhitelist = new List<string>();
 
         public static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
         public static List<ProcessData> ProcessDataList = new List<ProcessData>();
         public static List<int> NewProcesses = new List<int>();
         public static List<string> NetworkProcessList = new List<string>();
         public static ConcurrentDictionary<int, string> Services = new ConcurrentDictionary<int, string>();
-        static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
-        static List<Process> ProcessList = new List<Process>();
-        static Timer timer = new Timer(1000);
-        static float TotalCpuLoadPct = 0;
-        static long TotalCpuTime = 0;
-        static long CurrentTime;
-        static PerformanceCounter TotalCpuLoadCounter = new PerformanceCounter()
+
+        private static Notifier _notifier;
+        private static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
+        private static List<Process> ProcessList = new List<Process>();
+        private static System.Timers.Timer timer = new System.Timers.Timer(1000);
+        private static float TotalCpuLoadPct = 0;
+        private static long TotalCpuTime = 0;
+        private static long CurrentTime;
+        private static PerformanceCounter TotalCpuLoadCounter = new PerformanceCounter()
         {
             CategoryName = "Processor",
             CounterName = "% Processor Time",
@@ -38,8 +46,18 @@ namespace Argon
 
         public static void Initialize()
         {
-            Firewall.Initialize();
+            Task.Run(() => { ReadConfig(); });
             Task.Run(() => { TotalCpuLoadCounter.NextValue(); });
+
+            _notifier = new Notifier(cfg =>
+            {
+                cfg.LifetimeSupervisor = new CountBasedLifetimeSupervisor(MaximumNotificationCount.UnlimitedNotifications());
+                cfg.PositionProvider = new PrimaryScreenPositionProvider(Corner.BottomRight, 10, 40);
+                cfg.DisplayOptions.TopMost = true; // set the option to show notifications over other windows
+                cfg.DisplayOptions.Width = 400; // set the notifications width
+                cfg.Dispatcher = Application.Current.Dispatcher;
+            });
+            Firewall.Initialize();
             NetworkProcessList = GetNetworkProcessList();
             GetServices();
             GetCurrentProcesses();
@@ -54,6 +72,49 @@ namespace Argon
         {
             GetProcessesUsage();
             WriteToDb();
+        }
+
+        static void ReadConfig()
+        {
+            using (var db = new ArgonDB()) {
+                NotifyNewApplication = db.Config.First(x => x.Name == "NotifyNewApplication").Value == 1;
+                BlockNewConnections = db.Config.First(x => x.Name == "BlockNewConnections").Value == 1;
+                NotifyBlockedConnection = db.Config.First(x => x.Name == "NotifyBlockedConnection").Value == 1;
+                SuspendHighCpu = db.Config.First(x => x.Name == "SuspendHighCpu").Value == 1;
+
+                db.CpuSuspendWhitelist.ForEachAsync(x => CpuSuspendWhitelist.Add(x.Path));
+            }
+        }
+
+        public static void SuspendProcess(int PID)
+        {
+            PInvokes.DebugActiveProcess(Convert.ToUInt32(PID));
+        }
+
+        public static void ResumeProcess(int PID)
+        {
+            PInvokes.DebugActiveProcessStop(Convert.ToUInt32(PID));
+        }
+
+        public static void TerminateProcess(int PID)
+        {
+            Process.GetProcessById(PID).Kill();
+        }
+
+        public static void AddToWhitelist(string Path)
+        {
+            using (var db = new ArgonDB()) {
+                try {
+                    db.InsertAsync(new WhitelistedApp { Path = Path });
+                }
+                catch { }
+            }
+        }
+
+        public static void ShowNotification(int PID, string applicationName, string applicationPath, CustomNotification.ActionType actionType)
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+                new Action(() => _notifier.ShowNotification(PID, applicationName, applicationPath, actionType)));
         }
 
         static void GetCurrentProcesses()
@@ -214,6 +275,12 @@ namespace Argon
                          .Select(x => x.FilePath)
                          .Distinct()
                          .ToList();
+        }
+
+
+        public static void OnUnload()
+        {
+            _notifier.Dispose();
         }
 
         public class ProcessData

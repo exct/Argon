@@ -23,33 +23,32 @@
                        FontSize="13" Visibility="Hidden"> 
                 Click on RULE icon to block or allow an application.
             </TextBlock>
-            <WrapPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right">
+            <WrapPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0 10 0 0">
             <Control:ToggleSwitch Name="LockdownState" 
-                                  Header="Block All" 
+                                  OnLabel="All Connections Blocked"
+                                  OffLabel="Connections Allowed"
                                   IsCheckedChanged="LockdownState_IsCheckedChanged"
                                   Style="{StaticResource LockStateToggle}"
                                   VerticalAlignment="Center"
-                                  Margin="10 0"/>
+                                  Margin="10 0"
+                                  MinWidth="250"/>
             <Control:ToggleSwitch Name="FirewallState" 
-                                  Header="Firewall" 
+                                  OnLabel="Firewall On"
+                                  OffLabel="Firewall Off"
                                   IsCheckedChanged="FirewallState_IsCheckedChanged"
                                   Style="{StaticResource FirewallStateToggle}"
                                   VerticalAlignment="Center"
                                   Margin="10 0"/>
-            <Button Click="RefreshList" Background="Transparent" 
+            <Button x:Name="btnRefresh" Click="RefreshList" Background="Transparent" 
                     Height="25" Width="40"
                     Padding="0" Margin="50 0 30 0"
                     Focusable="False">
-                <Button.ContentTemplate>
-                    <DataTemplate>
-                        <iconPacks:PackIconMaterial Kind="Refresh" Height="16" Width="16" Margin="10 0"
-                                                    Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, 
-                                                                         Path=Foreground}" />
-                    </DataTemplate>
-                </Button.ContentTemplate>
+                    <iconPacks:PackIconMaterial Kind="Refresh" Height="16" Width="16" Margin="10 0"
+                                                Foreground="White" />
             </Button>
         </WrapPanel>
         </Grid>
+
         <DataGrid Name="AppDetailsDataGrid" Grid.Row="1"
                   ItemsSource="{Binding RulesListViewSource.View, Mode=OneWay}" 
                   IsReadOnly="True" Margin="10 10" AutoGenerateColumns="False"
@@ -110,5 +109,9 @@
                 <DataGridTextColumn Header="Path" Binding="{Binding Path}"  Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <Control:MetroProgressBar Name="ProgressBar1" Grid.Row="1" Height="30"
+                                  Visibility="Collapsed" IsIndeterminate="True"/>
+
     </Grid>
 </UserControl>
