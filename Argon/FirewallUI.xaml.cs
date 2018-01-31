@@ -19,7 +19,7 @@ namespace Argon
             InitializeComponent();
             RulesListViewSource = new CollectionViewSource();
             RefreshRuleList();
-            LockdownState.IsChecked = Firewall.GetLockdownState();
+            LockdownState.IsChecked = !Firewall.GetLockdownState();
             FirewallState.IsChecked = Firewall.GetEnabledState();
             DataContext = this;
         }
@@ -49,7 +49,7 @@ namespace Argon
 
         private void LockdownState_IsCheckedChanged(object sender, EventArgs e)
         {
-            if (((ToggleSwitch)sender).IsChecked ?? false)
+            if (!((ToggleSwitch)sender).IsChecked ?? false)
                 Firewall.Lockdown();
             else
                 Firewall.LockdownRelease();

@@ -66,9 +66,9 @@ namespace Argon
                                     actionType == ActionType.UnblockAllow ?
                                         new Action(() => Firewall.SetRule(applicationName, applicationPath, true)) :
                                     actionType == ActionType.SuspendWhitelist ?
-                                        new Action(() => Controller.AddToWhitelist(applicationPath)) :
+                                        new Action(() => Controller.AddToWhitelist(PID, applicationPath)) :
                                     actionType == ActionType.TerminateWhitelist ?
-                                        new Action(() => { Controller.ResumeProcess(PID); Controller.AddToWhitelist(applicationPath); }) :
+                                        new Action(() => { Controller.ResumeProcess(PID); Controller.AddToWhitelist(PID, applicationPath); }) :
                                     new Action(() => { });
 
             var _closeAction = new Action<CustomNotification>(n => n.Close());

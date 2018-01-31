@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace Argon
@@ -11,14 +8,14 @@ namespace Argon
         public const UInt32 DBG_CONTINUE = 0x00010002;
         public const UInt32 DBG_EXCEPTION_NOT_HANDLED = 0x80010001;
         public const Int32 CREATE_PROCESS_DEBUG_EVENT = 3;
-        public const Int32 CREATE_THREAD_DEBUG_EVENT = 2; 
+        public const Int32 CREATE_THREAD_DEBUG_EVENT = 2;
         public const Int32 EXCEPTION_DEBUG_EVENT = 1;
         public const Int32 EXIT_PROCESS_DEBUG_EVENT = 5;
         public const Int32 EXIT_THREAD_DEBUG_EVENT = 4;
-        public const Int32 LOAD_DLL_DEBUG_EVENT = 6; 
+        public const Int32 LOAD_DLL_DEBUG_EVENT = 6;
         public const Int32 OUTPUT_DEBUG_STRING_EVENT = 8;
         public const Int32 RIP_EVENT = 9;
-        public const Int32 UNLOAD_DLL_DEBUG_EVENT = 7; 
+        public const Int32 UNLOAD_DLL_DEBUG_EVENT = 7;
 
         public const UInt32 EXCEPTION_ACCESS_VIOLATION = 0xC0000005;
         public const UInt32 EXCEPTION_BREAKPOINT = 0x80000003;
@@ -27,27 +24,27 @@ namespace Argon
         public const UInt32 EXCEPTION_ARRAY_BOUNDS_EXCEEDED = 0xC000008C;
         public const UInt32 EXCEPTION_INT_DIVIDE_BY_ZERO = 0xC0000094;
         public const UInt32 DBG_CONTROL_C = 0x40010006;
-// more excetions may be added for processing, check minwinbase.h and winnt.h for definitions and values
-/*
-        #define EXCEPTION_FLT_DENORMAL_OPERAND      STATUS_FLOAT_DENORMAL_OPERAND
-        #define EXCEPTION_FLT_DIVIDE_BY_ZERO        STATUS_FLOAT_DIVIDE_BY_ZERO
-        #define EXCEPTION_FLT_INEXACT_RESULT        STATUS_FLOAT_INEXACT_RESULT
-        #define EXCEPTION_FLT_INVALID_OPERATION     STATUS_FLOAT_INVALID_OPERATION
-        #define EXCEPTION_FLT_OVERFLOW              STATUS_FLOAT_OVERFLOW
-        #define EXCEPTION_FLT_STACK_CHECK           STATUS_FLOAT_STACK_CHECK
-        #define EXCEPTION_FLT_UNDERFLOW             STATUS_FLOAT_UNDERFLOW
-        #define EXCEPTION_INT_OVERFLOW              STATUS_INTEGER_OVERFLOW
-        #define EXCEPTION_PRIV_INSTRUCTION          STATUS_PRIVILEGED_INSTRUCTION
-        #define EXCEPTION_IN_PAGE_ERROR             STATUS_IN_PAGE_ERROR
-        #define EXCEPTION_ILLEGAL_INSTRUCTION       STATUS_ILLEGAL_INSTRUCTION
-        #define EXCEPTION_NONCONTINUABLE_EXCEPTION  STATUS_NONCONTINUABLE_EXCEPTION
-        #define EXCEPTION_STACK_OVERFLOW            STATUS_STACK_OVERFLOW
-        #define EXCEPTION_INVALID_DISPOSITION       STATUS_INVALID_DISPOSITION
-        #define EXCEPTION_GUARD_PAGE                STATUS_GUARD_PAGE_VIOLATION
-        #define EXCEPTION_INVALID_HANDLE            STATUS_INVALID_HANDLE
-        #define EXCEPTION_POSSIBLE_DEADLOCK         STATUS_POSSIBLE_DEADLOCK
- 
-*/
+        // more excetions may be added for processing, check minwinbase.h and winnt.h for definitions and values
+        /*
+                #define EXCEPTION_FLT_DENORMAL_OPERAND      STATUS_FLOAT_DENORMAL_OPERAND
+                #define EXCEPTION_FLT_DIVIDE_BY_ZERO        STATUS_FLOAT_DIVIDE_BY_ZERO
+                #define EXCEPTION_FLT_INEXACT_RESULT        STATUS_FLOAT_INEXACT_RESULT
+                #define EXCEPTION_FLT_INVALID_OPERATION     STATUS_FLOAT_INVALID_OPERATION
+                #define EXCEPTION_FLT_OVERFLOW              STATUS_FLOAT_OVERFLOW
+                #define EXCEPTION_FLT_STACK_CHECK           STATUS_FLOAT_STACK_CHECK
+                #define EXCEPTION_FLT_UNDERFLOW             STATUS_FLOAT_UNDERFLOW
+                #define EXCEPTION_INT_OVERFLOW              STATUS_INTEGER_OVERFLOW
+                #define EXCEPTION_PRIV_INSTRUCTION          STATUS_PRIVILEGED_INSTRUCTION
+                #define EXCEPTION_IN_PAGE_ERROR             STATUS_IN_PAGE_ERROR
+                #define EXCEPTION_ILLEGAL_INSTRUCTION       STATUS_ILLEGAL_INSTRUCTION
+                #define EXCEPTION_NONCONTINUABLE_EXCEPTION  STATUS_NONCONTINUABLE_EXCEPTION
+                #define EXCEPTION_STACK_OVERFLOW            STATUS_STACK_OVERFLOW
+                #define EXCEPTION_INVALID_DISPOSITION       STATUS_INVALID_DISPOSITION
+                #define EXCEPTION_GUARD_PAGE                STATUS_GUARD_PAGE_VIOLATION
+                #define EXCEPTION_INVALID_HANDLE            STATUS_INVALID_HANDLE
+                #define EXCEPTION_POSSIBLE_DEADLOCK         STATUS_POSSIBLE_DEADLOCK
+
+        */
 
         public const UInt32 DEBUG_PROCESS = 0x00000001;
         public const UInt32 CREATE_SUSPENDED = 0x00000004;
@@ -144,7 +141,7 @@ namespace Argon
         {
             public UInt32 nLength;
             public IntPtr lpSecurityDescriptor;
-            public bool  bInheritHandle;
+            public bool bInheritHandle;
         }
         [StructLayout(LayoutKind.Sequential)]
         public struct STARTUPINFO
@@ -161,7 +158,7 @@ namespace Argon
             public UInt32 dwYCountChars;
             public UInt32 dwFillAttribute;
             public UInt32 dwFlags;
-            public UInt16  wShowWindow;
+            public UInt16 wShowWindow;
             public UInt16 cbReserved2;
             public IntPtr lpReserved2;
             public IntPtr hStdInput;

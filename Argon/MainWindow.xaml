@@ -74,13 +74,25 @@
                 <local:FirewallUI/>
 
             </TabItem>
-            
+
+            <TabItem Height="50">
+                <TabItem.Header>
+                    <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" ToolTip="Suspended Processes" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                </TabItem.Header>
+
+                <local:SuspendedProcesses x:Name="SuspendedProcesses"/>
+
+            </TabItem>
+
             <TabItem Height="50">
                 <TabItem.Header>
                     <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
+                
+                
+                
             </TabItem>
-            
+
         </Controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 

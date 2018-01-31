@@ -18,12 +18,15 @@ namespace Argon
 {
     public sealed class Controller
     {
-        public static bool NotifyNewApplication { get; private set; }
-        public static bool BlockNewConnections { get; private set; }
-        public static bool NotifyBlockedConnection { get; private set; }
-        public static bool SuspendHighCpu { get; private set; }
-        public static List<string> CpuSuspendWhitelist = new List<string>();
+        public static bool NotifyNewApplication { get; set; }
+        public static bool BlockNewConnections { get; set; }
+        public static bool NotifyBlockedConnection { get; set; }
+        public static bool NotifyHighCpu { get; set; }
+        public static bool SuspendHighCpu { get; set; }
+        public static List<ProcessData> SuspendedProcessList { get; set; } = new List<ProcessData>();
 
+        public static int ProcessorLoadThreshold = 50;
+        public static List<string> CpuSuspendWhitelist = new List<string>();
         public static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
         public static List<ProcessData> ProcessDataList = new List<ProcessData>();
         public static List<int> NewProcesses = new List<int>();
@@ -48,7 +51,6 @@ namespace Argon
         {
             Task.Run(() => { ReadConfig(); });
             Task.Run(() => { TotalCpuLoadCounter.NextValue(); });
-
             _notifier = new Notifier(cfg =>
             {
                 cfg.LifetimeSupervisor = new CountBasedLifetimeSupervisor(MaximumNotificationCount.UnlimitedNotifications());
@@ -81,27 +83,52 @@ namespace Argon
                 BlockNewConnections = db.Config.First(x => x.Name == "BlockNewConnections").Value == 1;
                 NotifyBlockedConnection = db.Config.First(x => x.Name == "NotifyBlockedConnection").Value == 1;
                 SuspendHighCpu = db.Config.First(x => x.Name == "SuspendHighCpu").Value == 1;
-
+                ProcessorLoadThreshold = db.Config.First(x => x.Name == "HighCpuThreshold").Value;
                 db.CpuSuspendWhitelist.ForEachAsync(x => CpuSuspendWhitelist.Add(x.Path));
+                CpuSuspendWhitelist.Add(Process.GetCurrentProcess().MainModule.FileName);
             }
         }
 
         public static void SuspendProcess(int PID)
         {
-            PInvokes.DebugActiveProcess(Convert.ToUInt32(PID));
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try {
+                    bool success = PInvokes.DebugActiveProcess(Convert.ToUInt32(PID));
+                    if (success) {
+                        SuspendedProcessList.Add(ProcessDataList.First(x => x.ID == PID));
+                        ((MainWindow)Application.Current.MainWindow).SuspendedProcesses.UpdateViewSource();
+                    }
+                }
+                catch { }
+            }));
         }
 
         public static void ResumeProcess(int PID)
         {
-            PInvokes.DebugActiveProcessStop(Convert.ToUInt32(PID));
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try {
+                    bool success = PInvokes.DebugActiveProcessStop(Convert.ToUInt32(PID));
+                    if (success) {
+                        SuspendedProcessList.RemoveAll(x => x.ID == PID);
+                        ((MainWindow)Application.Current.MainWindow).SuspendedProcesses.UpdateViewSource();
+                    }
+                }
+                catch { }
+            }));
         }
 
         public static void TerminateProcess(int PID)
         {
-            Process.GetProcessById(PID).Kill();
+            try {
+                Process.GetProcessById(PID).Kill();
+                ResumeProcess(PID);
+            }
+            catch { }
         }
 
-        public static void AddToWhitelist(string Path)
+        public static void AddToWhitelist(int PID, string Path)
         {
             using (var db = new ArgonDB()) {
                 try {
@@ -109,6 +136,8 @@ namespace Argon
                 }
                 catch { }
             }
+            CpuSuspendWhitelist.Add(Path);
+            SuspendedProcessList.RemoveAll(x => x.ID == PID);
         }
 
         public static void ShowNotification(int PID, string applicationName, string applicationPath, CustomNotification.ActionType actionType)
@@ -237,8 +266,19 @@ namespace Argon
                 foreach (ProcessData p in ProcessDataList)
                     if (p.ProcessorTimeDiff <= 0)
                         p.ProcessorLoadPercent = 0;
-                    else
+                    else {
                         p.ProcessorLoadPercent = Math.Round((p.ProcessorTimeDiff / (double)TotalCpuTime * TotalCpuLoadPct), 2);
+                        if ((NotifyHighCpu || SuspendHighCpu) && p.ProcessorLoadPercent > ProcessorLoadThreshold && !CpuSuspendWhitelist.Contains(p.Path)) {
+                            if (NotifyHighCpu)
+                                ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.SuspendWhitelist);
+                            else if (SuspendHighCpu)
+                                try {
+                                    SuspendProcess(p.ID);
+                                    ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.TerminateWhitelist);
+                                }
+                                catch { }
+                        }
+                    }
             }
         }
 

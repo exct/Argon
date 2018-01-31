@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="Argon.SuspendedProcesses"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Argon"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <DataGrid Name="SuspendedProcessesDataGrid" 
+                  ItemsSource="{Binding SuspendedProcessesViewSource.View, Mode=OneWay}" 
+                  IsReadOnly="True" Margin="10" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="WhitelistButton_Click"
+                                    ToolTip="Whitelist and Resume"
+                                    Focusable="False"
+                                    Background="Transparent"
+                                    Cursor="Hand"
+                                    BorderThickness="0"
+                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                <iconPacks:PackIconFontAwesome Kind="PlayCircleSolid" Width="20" Height="20" VerticalAlignment="Center" Foreground="#FF00B600" Background="Transparent"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="TerminateButton_Click"
+                                    ToolTip="Terminate"
+                                    Focusable="False"
+                                    Background="Transparent"
+                                    Cursor="Hand"
+                                    BorderThickness="0"
+                                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                <iconPacks:PackIconFontAwesome Kind="TimesCircleSolid" Width="20" Height="20" VerticalAlignment="Center" Foreground="#FFB60000" Background="Transparent"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Path" Binding="{Binding Path}"  Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

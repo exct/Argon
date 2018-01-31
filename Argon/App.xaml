@@ -20,19 +20,6 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.ToggleSwitch.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="LockStateToggle" 
-                   BasedOn="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}"
-                   TargetType="{x:Type Control:ToggleSwitch}">
-                <Setter Property="Padding" Value="0 0 10 0" />
-                <Setter Property="OnSwitchBrush" Value="DarkRed"/>
-                <Setter Property="OffSwitchBrush" Value="Green"/>
-                <Style.Triggers>
-                    <Trigger Property="ContentDirection" Value="RightToLeft">
-                        <Setter Property="Padding" Value="10 0 0 0" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-
             <Style x:Key="FirewallStateToggle" 
                    BasedOn="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}"
                    TargetType="{x:Type Control:ToggleSwitch}">
