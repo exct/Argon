@@ -86,6 +86,9 @@ namespace Argon
     [Table(Name = "CpuSuspendWhitelist")]
     public class WhitelistedApp
     {
+        [Column(Name = "Name"), NotNull]
+        public string Name { get; set; }
+
         [Column(Name = "Path"), NotNull]
         public string Path { get; set; }
 

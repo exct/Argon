@@ -8,11 +8,11 @@ CREATE TABLE IF NOT EXISTS `ProcessCounters` (
 );
 DROP TABLE IF EXISTS `Notifications`;
 CREATE TABLE IF NOT EXISTS `Notifications` (
-	`Time`	INTEGER NOT NULL,
-	`ApplicationName`	TEXT NOT NULL,
-	`ApplicationPath`	TEXT NOT NULL,
-	`Type`	INTEGER NOT NULL,
-	`NotActivated`	INTEGER NOT NULL
+	`Time`	INTEGER,
+	`ApplicationName`	TEXT,
+	`ApplicationPath`	TEXT,
+	`Type`	INTEGER,
+	`NotActivated`	INTEGER
 );
 DROP TABLE IF EXISTS `NetworkTraffic`;
 CREATE TABLE IF NOT EXISTS `NetworkTraffic` (
@@ -31,12 +31,8 @@ CREATE TABLE IF NOT EXISTS `NetworkTraffic` (
 );
 DROP TABLE IF EXISTS `CpuSuspendWhitelist`;
 CREATE TABLE IF NOT EXISTS `CpuSuspendWhitelist` (
+	`Name`	TEXT NOT NULL,
 	`Path`	TEXT NOT NULL UNIQUE
-);
-DROP TABLE IF EXISTS `Config`;
-CREATE TABLE IF NOT EXISTS `Config` (
-	`Name`	TEXT,
-	`Value`	INTEGER
 );
 DROP INDEX IF EXISTS `processor_time_index`;
 CREATE INDEX IF NOT EXISTS `processor_time_index` ON `ProcessCounters` (

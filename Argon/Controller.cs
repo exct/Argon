@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
@@ -24,17 +25,16 @@ namespace Argon
     {
         public static bool NotifyNewApplication { get; set; }
         public static bool BlockNewConnections { get; set; }
-        public static bool NotifyBlockedConnection { get; set; }
         public static bool NotifyHighCpu { get; set; }
         public static bool SuspendHighCpu { get; set; }
-        public static ConcurrentBag<ProcessData> SuspendedProcessList { get; set; } = new ConcurrentBag<ProcessData>();
-        public static ConcurrentBag<NotificationItem> NotificationList { get; set; } = new ConcurrentBag<NotificationItem>();
-        public static int ProcessorLoadThreshold = 50;
-        public static ConcurrentBag<string> CpuSuspendWhitelist = new ConcurrentBag<string>();
-        public static ConcurrentBag<NetworkTraffic> NetworkTrafficList = new ConcurrentBag<NetworkTraffic>();
-        public static ConcurrentBag<ProcessData> ProcessDataList = new ConcurrentBag<ProcessData>();
-        public static ConcurrentBag<int> NewProcesses = new ConcurrentBag<int>();
-        public static ConcurrentBag<string> NetworkProcessList = new ConcurrentBag<string>();
+        public static int ProcessorLoadThreshold { get; set; } = 50;
+        public static List<ProcessData> SuspendedProcessList { get; set; } = new List<ProcessData>();
+        public static List<NotificationItem> NotificationList { get; set; } = new List<NotificationItem>();
+        public static List<WhitelistedApp> CpuSuspendWhitelist = new List<WhitelistedApp>();
+        public static List<NetworkTraffic> NetworkTrafficList = new List<NetworkTraffic>();
+        public static List<ProcessData> ProcessDataList = new List<ProcessData>();
+        public static List<int> NewProcesses = new List<int>();
+        public static List<string> NetworkProcessList = new List<string>();
         public static ConcurrentDictionary<int, string> Services = new ConcurrentDictionary<int, string>();
 
         private static Notifier _notifier = new Notifier(cfg =>
@@ -85,11 +85,11 @@ namespace Argon
             using (var db = new ArgonDB()) {
                 NotifyNewApplication = db.Config.First(x => x.Name == "NotifyNewApplication").Value == 1;
                 BlockNewConnections = db.Config.First(x => x.Name == "BlockNewConnections").Value == 1;
-                NotifyBlockedConnection = db.Config.First(x => x.Name == "NotifyBlockedConnection").Value == 1;
                 SuspendHighCpu = db.Config.First(x => x.Name == "SuspendHighCpu").Value == 1;
+                NotifyHighCpu = db.Config.First(x => x.Name == "NotifyHighCpu").Value == 1;
                 ProcessorLoadThreshold = db.Config.First(x => x.Name == "HighCpuThreshold").Value;
-                db.CpuSuspendWhitelist.ForEachAsync(x => CpuSuspendWhitelist.Add(x.Path));
-                CpuSuspendWhitelist.Add(Process.GetCurrentProcess().MainModule.FileName);
+                CpuSuspendWhitelist.Add(new WhitelistedApp { Name = "Argon", Path = Process.GetCurrentProcess().MainModule.FileName });
+                db.CpuSuspendWhitelist.ForEachAsync(x => CpuSuspendWhitelist.Add(x));
             }
         }
 
@@ -148,20 +148,33 @@ namespace Argon
             catch { }
         }
 
-        public static void AddToWhitelist(string Path)
+        public static void AddToWhitelist(string name, string path)
         {
-            AddToWhitelist(0, Path);
+            AddToWhitelist(0, name, path);
         }
-        public static void AddToWhitelist(int PID, string Path)
+        public static void AddToWhitelist(int PID, string name, string path)
         {
-            using (var db = new ArgonDB()) {
+            var app = new WhitelistedApp
+            {
+                Name = name,
+                Path = path
+            };
+
+            using (var db = new ArgonDB())
                 try {
-                    db.InsertAsync(new WhitelistedApp { Path = Path });
+                    db.InsertAsync(app);
                 }
                 catch { }
-            }
-            CpuSuspendWhitelist.Add(Path);
+
+            CpuSuspendWhitelist.Add(app);
             SuspendedProcessList.RemoveAll(x => x.ID == PID);
+        }
+
+        public static void RemoveFromWhitelist(WhitelistedApp app)
+        {
+            CpuSuspendWhitelist.RemoveAll(x => x == app);
+            using (var db = new ArgonDB())
+                db.DeleteAsync(app);
         }
 
         public static void ShowNotification(int PID, string applicationName, string applicationPath, CustomNotification.ActionType actionType)
@@ -266,7 +279,7 @@ namespace Argon
         static void GetCurrentProcesses()
         {
             lock (ProcessList)
-                ProcessList = Process.GetProcesses().ToList();
+                ProcessList = new ConcurrentBag<Process>(Process.GetProcesses());
         }
 
         static ConcurrentDictionary<int, string> GetServices()
@@ -285,17 +298,19 @@ namespace Argon
                     GetServices().Where(x => x.Key == PID).Select(x => x.Value).FirstOrDefault();
         }
 
-        static void InitProcessDataList()
+        public static void InitProcessDataList()
         {
-            lock (ProcessDataList)
+            lock (ProcessDataList) {
+                ProcessDataList = new List<ProcessData>();
                 lock (ProcessList)
                     Parallel.ForEach(ProcessList, (p) =>
                     {
                         AddToProcessDataList(p);
                     });
+            }
         }
 
-        static void UpdateProcessDataList()
+        public static void UpdateProcessDataList()
         {
             GetCurrentProcesses();
             lock (NewProcesses) {
@@ -385,15 +400,20 @@ namespace Argon
                         p.ProcessorLoadPercent = 0;
                     else {
                         p.ProcessorLoadPercent = Math.Round((p.ProcessorTimeDiff / (double)TotalCpuTime * TotalCpuLoadPct), 2);
-                        if ((NotifyHighCpu || SuspendHighCpu) && p.ProcessorLoadPercent > ProcessorLoadThreshold && !CpuSuspendWhitelist.Contains(p.Path)) {
-                            if (NotifyHighCpu)
-                                ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.SuspendWhitelist);
-                            else if (SuspendHighCpu)
+                        if ((NotifyHighCpu || SuspendHighCpu)
+                            && p.ProcessorLoadPercent > ProcessorLoadThreshold
+                            && !CpuSuspendWhitelist.Any(x => x.Path == p.Path)) {
+                            if (SuspendHighCpu)
                                 try {
                                     SuspendProcess(p.ID);
                                     ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.TerminateWhitelist);
                                 }
                                 catch { }
+                            else if (NotifyHighCpu) {
+                                if (!NotificationList.Any(x => x.NotActivated && x.Type == (int)ActionType.SuspendWhitelist
+                                                          && x.ApplicationPath == p.Path))
+                                    ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.SuspendWhitelist);
+                            }
                         }
                     }
             }
@@ -425,17 +445,19 @@ namespace Argon
                 catch { db.RollbackTransaction(); }
         }
 
-        static ConcurrentBag<string> GetNetworkProcessList()
+        static List<string> GetNetworkProcessList()
         {
             using (var db = new ArgonDB())
-                return new ConcurrentBag<string>(db.NetworkTraffic
-                                                   .Select(x => x.FilePath)
-                                                   .Distinct());
+                return db.NetworkTraffic
+                         .Select(x => x.FilePath)
+                         .Distinct()
+                         .ToList();
         }
 
 
         public static void OnUnload()
         {
+            EtwMonitor.EtwSession.Dispose();
             _notifier.Dispose();
         }
 

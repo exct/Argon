@@ -71,12 +71,17 @@ namespace Argon
                                     actionType == ActionType.UnblockAllow ?
                                         new Action(() => Firewall.SetRule(applicationName, applicationPath, true)) :
                                     actionType == ActionType.SuspendWhitelist ?
-                                        new Action(() => Controller.AddToWhitelist(PID, applicationPath)) :
+                                        new Action(() =>
+                                        {
+                                            Controller.AddToWhitelist(PID, applicationName, applicationPath);
+                                            ((MainWindow)Application.Current.MainWindow).SuspendedProcesses.UpdateViewSource();
+                                        }) :
                                     actionType == ActionType.TerminateWhitelist ?
                                         new Action(() =>
                                         {
                                             Controller.ResumeProcess(PID);
-                                            Controller.AddToWhitelist(PID, applicationPath);
+                                            Controller.AddToWhitelist(PID, applicationName, applicationPath);
+                                            ((MainWindow)Application.Current.MainWindow).SuspendedProcesses.UpdateViewSource();
                                         }) :
                                     new Action(() => { });
 

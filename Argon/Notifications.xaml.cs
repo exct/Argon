@@ -48,7 +48,7 @@ namespace Argon
             }
             else if (notif.Type == (int)CustomNotification.ActionType.SuspendWhitelist ||
                      notif.Type == (int)CustomNotification.ActionType.TerminateWhitelist) {
-                Controller.AddToWhitelist(notif.ApplicationPath);
+                Controller.AddToWhitelist(notif.ApplicationName, notif.ApplicationPath);
             }
 
             Task.Run(() =>

@@ -286,6 +286,7 @@ namespace Argon
 
         private void AppListGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            e.Handled = true;
             if (e.AddedItems.Count == 0) return;
             var item = (AppUsage)(e.AddedItems[0]);
 

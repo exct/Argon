@@ -93,84 +93,99 @@
             </lvc:CartesianChart>
         </Grid>
 
-        <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl" Grid.Row="0" Grid.Column="1" SelectionChanged="GraphTabControl_SelectionChanged">
-            <Controls:MetroAnimatedSingleRowTabControl.Resources>
-                <Style TargetType="{x:Type TabPanel}">
-                    <Setter Property="HorizontalAlignment" Value="Center" />
-                </Style>
-            </Controls:MetroAnimatedSingleRowTabControl.Resources>
-
-            <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
-                <TabItem.Header>
-                    Network
-                </TabItem.Header>
+        <Expander Name="DataGridExpander" Grid.Row="0" Grid.Column="1" 
+                  ExpandDirection="Left" Background="Transparent" 
+                  BorderThickness="0" Margin="-10 0 10 0"
+                  Controls:GroupBoxHelper.HeaderForeground="{DynamicResource IdealForegroundColorBrush}">
+            <Expander.Header>
+                <TextBlock Text="Per-application Data" Margin="0 5 0 0" Cursor="Hand">
+                    <TextBlock.LayoutTransform>
+                        <TransformGroup>
+                            <RotateTransform Angle="90"/>
+                        </TransformGroup>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Expander.Header>
+            
+            <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl" SelectionChanged="GraphTabControl_SelectionChanged">
                 
-                <DataGrid x:Name="NetAppListGridView" Grid.Row="0" Grid.Column="1" Margin="0 0 20 0" ItemsSource="{Binding NetAppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True" >
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Image Source="{Binding Icon}" Height="24" Width="24" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" MaxWidth="300">
-                            <DataGridTextColumn.CellStyle>
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="ToolTip" Value="{Binding Path}" />
-                                    <Setter Property="VerticalAlignment" Value="Center" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{x:Null}" />
-                                            <Setter Property="BorderBrush" Value="{x:Null}" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGridTextColumn.CellStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="Sent" Binding="{Binding Sent, Converter={StaticResource AddSizeSuffix}}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" 
+                <Controls:MetroAnimatedSingleRowTabControl.Resources>
+                    <Style TargetType="{x:Type TabPanel}">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                    </Style>
+                </Controls:MetroAnimatedSingleRowTabControl.Resources>
+
+                <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
+                    <TabItem.Header>
+                        Network
+                    </TabItem.Header>
+
+                    <DataGrid x:Name="NetAppListGridView" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding NetAppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True" >
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding Icon}" Height="24" Width="24" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" MaxWidth="300">
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path}" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{x:Null}" />
+                                                <Setter Property="BorderBrush" Value="{x:Null}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Sent" Binding="{Binding Sent, Converter={StaticResource AddSizeSuffix}}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" 
                   FontFamily="Consolas" FontSize="13" />
-                        <DataGridTextColumn Header="Recv" Binding="{Binding Recv, Converter={StaticResource AddSizeSuffix}}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" 
+                            <DataGridTextColumn Header="Recv" Binding="{Binding Recv, Converter={StaticResource AddSizeSuffix}}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" 
                   FontFamily="Consolas" FontSize="13"/>
-                        <DataGridTextColumn Header="Total" Binding="{Binding Total, Converter={StaticResource AddSizeSuffix}}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" 
+                            <DataGridTextColumn Header="Total" Binding="{Binding Total, Converter={StaticResource AddSizeSuffix}}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" 
                   FontFamily="Consolas" FontSize="13"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-            </TabItem>
-            <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
-                <TabItem.Header>
-                    Processor
-                </TabItem.Header>
-                <DataGrid x:Name="ProcAppListGridView" Grid.Row="0" Grid.Column="1" Margin="0 0 20 0" ItemsSource="{Binding ProcAppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True" >
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Image Source="{Binding Icon}" Height="24" Width="24" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Name" Binding="{Binding Name}" MaxWidth="300">
-                            <DataGridTextColumn.CellStyle>
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="ToolTip" Value="{Binding Path}" />
-                                    <Setter Property="VerticalAlignment" Value="Center" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{x:Null}" />
-                                            <Setter Property="BorderBrush" Value="{x:Null}" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGridTextColumn.CellStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="Processor" Binding="{Binding Processor}" ElementStyle="{StaticResource CellCenterAlign}" CellStyle="{StaticResource CellStyle}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>
-        </Controls:MetroAnimatedSingleRowTabControl>
-
+                </TabItem>
+                <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
+                    <TabItem.Header>
+                        Processor
+                    </TabItem.Header>
+                    <DataGrid x:Name="ProcAppListGridView" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding ProcAppListViewSource.View, Mode=OneWay}" AutoGenerateColumns="False" IsReadOnly="True" >
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding Icon}" Height="24" Width="24" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" MaxWidth="300">
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding Path}" />
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{x:Null}" />
+                                                <Setter Property="BorderBrush" Value="{x:Null}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Processor" Binding="{Binding Processor}" ElementStyle="{StaticResource CellCenterAlign}" CellStyle="{StaticResource CellStyle}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </Controls:MetroAnimatedSingleRowTabControl>
+        </Expander>
 
         <lvc:CartesianChart x:Name="ScrollChart" Grid.Row="1" Grid.ColumnSpan="2" 
                             DisableAnimations="True" 

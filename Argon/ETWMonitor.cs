@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,8 +10,9 @@ namespace Argon
 {
     public sealed class EtwMonitor
     {
-        static TraceEventSession EtwSession;
+        public static TraceEventSession EtwSession;
         private static int Failed = 0;
+        private static int NullRef = 0;
 
         public static void Initialize()
         {
@@ -83,13 +85,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -137,13 +147,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -191,13 +209,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -245,13 +271,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -299,13 +333,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -353,13 +395,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -407,13 +457,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -461,13 +519,21 @@ namespace Argon
                                                 Controller.NetworkProcessList.Add(p.Path);
                                                 if (Controller.BlockNewConnections) {
                                                     Firewall.SetRule(p.Name, p.Path, false);
-                                                    if (Controller.NotifyBlockedConnection)
+                                                    if (Controller.NotifyNewApplication)
                                                         Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.UnblockAllow);
                                                 }
-                                                if (Controller.NotifyNewApplication && !Controller.BlockNewConnections)
+                                                else if (Controller.NotifyNewApplication)
                                                     Controller.ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.BlockAllow);
                                             }
                                     }
+                        }
+                        catch (NullReferenceException) {
+                            Controller.UpdateProcessDataList();
+                            NullRef += 1;
+                            if (NullRef > 10) {
+                                Controller.InitProcessDataList();
+                                NullRef = 0;
+                            }
                         }
                         catch { }
                     };
@@ -476,9 +542,12 @@ namespace Argon
                 }
             }
             catch {
-                if (++Failed > 3)
-                    throw;
+                if (++Failed > 3) {
+                    EtwSession.Dispose();
+                    throw new Exception("Unable to start ETW Session.");
+                }
                 else {
+                    EtwSession.Dispose();
                     Thread.Sleep(1000);
                     Initialize();
                 }

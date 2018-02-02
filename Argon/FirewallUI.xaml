@@ -31,14 +31,14 @@
                                   Style="{StaticResource FirewallStateToggle}"
                                   VerticalAlignment="Center"
                                   Margin="10 0"
-                                  MinWidth="250"/>
+                                  MinWidth="250" FontSize="14"/>
             <Control:ToggleSwitch Name="FirewallState" 
                                   OnLabel="Firewall On"
                                   OffLabel="Firewall Off"
                                   IsCheckedChanged="FirewallState_IsCheckedChanged"
                                   Style="{StaticResource FirewallStateToggle}"
                                   VerticalAlignment="Center"
-                                  Margin="10 0"/>
+                                  Margin="10 0" FontSize="14"/>
             <Button x:Name="btnRefresh" Click="RefreshList" Background="Transparent" 
                     Height="25" Width="40"
                     Padding="0" Margin="50 0 30 0"

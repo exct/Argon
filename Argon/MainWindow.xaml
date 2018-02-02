@@ -17,31 +17,24 @@
 
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
-            <Button Content="settings" />
-            <Button>
-                <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="20"
-                   Height="20"
-                   Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+            <Button Click="SettingsButton_Click">
+                    <Rectangle Width="16" Height="16"
+                               Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                               ToolTip="Settings">
                         <Rectangle.OpacityMask>
-                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_graph_line_up}" />
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_cog}" />
                         </Rectangle.OpacityMask>
                     </Rectangle>
-                    <TextBlock Margin="4 0 0 0"
-                   VerticalAlignment="Center"
-                   Text="Zzz" />
-                </StackPanel>
             </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
-
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" Grid.Row="0">
+        <Controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" Grid.Row="0" SelectionChanged="MainTabControl_SelectionChanged">
             <Controls:MetroAnimatedSingleRowTabControl.Resources>
                 <Style TargetType="{x:Type TabPanel}">
                     <Setter Property="HorizontalAlignment" Value="Center" />
@@ -50,7 +43,7 @@
 
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
+                    <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Graph" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
                 </TabItem.Header>
 
                 <local:Graph/>
@@ -59,7 +52,7 @@
             
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Usage" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
 
                 <local:Usage/>
@@ -68,16 +61,16 @@
             
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Firewall" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
 
-                <local:FirewallUI/>
+                <local:FirewallUI x:Name="FirewallUI"/>
 
             </TabItem>
 
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" ToolTip="Suspended Processes" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Suspended Processes" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
 
                 <local:SuspendedProcesses x:Name="SuspendedProcesses"/>
@@ -86,7 +79,7 @@
 
             <TabItem Height="50">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Notifications" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                 </TabItem.Header>
 
                 <local:Notifications x:Name="Notifications"/>
@@ -96,5 +89,63 @@
         </Controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+            <Controls:Flyout Name="SettingsFlyout" Header="Settings" Position="Right" Width="300">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Margin="30 10">
+                        <CheckBox Name="ChkNotifyFirstConn" Focusable="False" IsChecked="{Binding NotifyFirstConn, Mode=OneWay}" Click="ChkNotifyFirstConn_Click">
+                            <TextBlock Text="Notify On First Connection" 
+                                       FontWeight="SemiBold" FontSize="14" Margin="0 0 0 3"/>
+                        </CheckBox>
+                        <TextBlock Text="Notify when an application makes a network connection for the first time." 
+                                   TextWrapping="Wrap" FontSize="12" Margin="25 3 0 15"/>
+
+                        <CheckBox Name="ChkBlockFirstConn" Focusable="False" IsChecked="{Binding BlockFirstConn, Mode=OneWay}" Click="ChkBlockFirstConn_Click">
+                            <TextBlock Text="Block On First Connection" 
+                                       FontWeight="SemiBold" FontSize="14" Margin="0 0 0 3"/>
+                        </CheckBox>
+                        <TextBlock Text="Block an application from making network connections when it makes a network connection for the first time." 
+                                   TextWrapping="Wrap" FontSize="12" Margin="25 3 0 15"/>
+
+                        <CheckBox Name="ChkNotifyHighCPU" Focusable="False" IsChecked="{Binding NotifyHighCPU, Mode=OneWay}" Click="ChkNotifyHighCPU_Click">
+                            <TextBlock Text="Notify On High CPU Load" 
+                                       FontWeight="SemiBold" FontSize="14" Margin="0 0 0 3"/>
+                        </CheckBox>
+                        <TextBlock Text="Notify when an application is using a large amount of processor time." 
+                                   TextWrapping="Wrap" FontSize="12" Margin="25 3 0 15"/>
+
+                        <CheckBox Name="ChkSuspendHighCPU" Focusable="False" IsChecked="{Binding SuspendHighCPU, Mode=OneWay}" Click="ChkSuspendHighCPU_Click">
+                            <TextBlock Text="Suspend On High CPU Load" 
+                                       FontWeight="SemiBold" FontSize="14" Margin="0 0 0 3"/>
+                        </CheckBox>
+                        <TextBlock Text="Suspend the application when an application is using a large amount of processor time." 
+                                   TextWrapping="Wrap" FontSize="12" Margin="25 3 0 15"/>
+
+                        
+                        <TextBlock Text="High CPU Load Threshold" 
+                                   FontWeight="SemiBold" FontSize="14" Margin="25 5 0 3"/>
+                        <TextBlock Text="CPU usage percentage threshold for application to be suspended." 
+                                   TextWrapping="Wrap" FontSize="12" Margin="25 3 0 15"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="3.7*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Slider Name="ThresholdSlider" Minimum="10" Maximum="100" Margin="0 0 0 0" TickPlacement="None" TickFrequency="1" IsSnapToTickEnabled="True" IsMoveToPointEnabled="True" ValueChanged="ThresholdSlider_ValueChanged" Thumb.DragCompleted="ThresholdSlider_DragCompleted" Grid.Column="1"/>
+                            <TextBlock Text="{Binding ElementName=ThresholdSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Left" Grid.Column="0" Margin="25 -3 0 0" FontSize="13"/>
+                        </Grid>
+                    </StackPanel>
+                    
+                </Grid>
+            </Controls:Flyout>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
 
 </Controls:MetroWindow>
