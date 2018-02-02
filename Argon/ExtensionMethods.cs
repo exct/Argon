@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -66,7 +67,10 @@ namespace Argon
                 return null;
         }
 
-
+        public static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> col)
+        {
+            return new ObservableCollection<T>(col);
+        }
     }
 
     public class DataSizeConverter : IValueConverter

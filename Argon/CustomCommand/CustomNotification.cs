@@ -1,8 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using LinqToDB;
 
 using ToastNotifications.Core;
 
@@ -18,8 +22,9 @@ namespace Argon
         public ICommand Button2Command { get; set; }
         public ICommand CloseCommand { get; set; }
 
-        public CustomNotification(int PID, string applicationName, string applicationPath, ActionType actionType)
+        public CustomNotification(int PID, string applicationName, string applicationPath, ActionType actionType, DateTime time)
         {
+            Time = time.ToLongTimeString();
             string title = actionType == ActionType.BlockAllow ? "First connection: " :
                            actionType == ActionType.UnblockAllow ? "Blocked connection: " :
                            actionType == ActionType.SuspendWhitelist ? "High CPU load: " :
@@ -29,16 +34,16 @@ namespace Argon
             Title = title + applicationName;
             Message = applicationPath;
 
-            Button1 = actionType == ActionType.BlockAllow ? "Block" :
-                      actionType == ActionType.UnblockAllow ? "Unblock" :
-                      actionType == ActionType.SuspendWhitelist ? "Suspend" :
-                      actionType == ActionType.TerminateWhitelist ? "Terminate" :
+            Button1 = actionType == ActionType.BlockAllow ? "BLOCK" :
+                      actionType == ActionType.UnblockAllow ? "UNBLOCK" :
+                      actionType == ActionType.SuspendWhitelist ? "SUSPEND" :
+                      actionType == ActionType.TerminateWhitelist ? "TERMINATE" :
                       null;
 
-            Button2 = actionType == ActionType.BlockAllow ? "Allow" :
-                      actionType == ActionType.UnblockAllow ? "Allow" :
-                      actionType == ActionType.SuspendWhitelist ? "Whitelist" :
-                      actionType == ActionType.TerminateWhitelist ? "Whitelist" :
+            Button2 = actionType == ActionType.BlockAllow ? "ALLOW" :
+                      actionType == ActionType.UnblockAllow ? "ALLOW" :
+                      actionType == ActionType.SuspendWhitelist ? "WHITELIST" :
+                      actionType == ActionType.TerminateWhitelist ? "WHITELIST" :
                       null;
 
             BackgroundColor = actionType == ActionType.BlockAllow ?
@@ -68,13 +73,31 @@ namespace Argon
                                     actionType == ActionType.SuspendWhitelist ?
                                         new Action(() => Controller.AddToWhitelist(PID, applicationPath)) :
                                     actionType == ActionType.TerminateWhitelist ?
-                                        new Action(() => { Controller.ResumeProcess(PID); Controller.AddToWhitelist(PID, applicationPath); }) :
+                                        new Action(() =>
+                                        {
+                                            Controller.ResumeProcess(PID);
+                                            Controller.AddToWhitelist(PID, applicationPath);
+                                        }) :
                                     new Action(() => { });
 
             var _closeAction = new Action<CustomNotification>(n => n.Close());
 
-            Button1Command = new RelayCommand(x => { _button1Action(); _closeAction(this); });
-            Button2Command = new RelayCommand(x => { _button2Action(); _closeAction(this); });
+            Action setNotificationActivated = new Action(() =>
+            {
+                Controller.NotificationList.Find(x => x.Type == (int)actionType && x.ApplicationPath == applicationPath && x.Time == time).NotActivated = false;
+                ((MainWindow)Application.Current.MainWindow).Notifications.UpdateViewSource();
+
+                using (var db = new ArgonDB())
+                    db.NotificationsList
+                      .Where(x => x.Type == (int)actionType
+                               && x.ApplicationPath == applicationPath
+                               && x.Time == time.Ticks)
+                      .Set(x => x.NotActivated, 0)
+                      .Update();
+            });
+
+            Button1Command = new RelayCommand(x => { _button1Action(); setNotificationActivated(); _closeAction(this); });
+            Button2Command = new RelayCommand(x => { _button2Action(); setNotificationActivated(); _closeAction(this); });
             CloseCommand = new RelayCommand(x => _closeAction(this));
         }
 
@@ -106,7 +129,7 @@ namespace Argon
                 OnPropertyChanged();
             }
         }
-
+        public string Time { get; set; }
         public string Button1 { get; private set; }
         public string Button2 { get; private set; }
         public SolidColorBrush BackgroundColor { get; private set; }

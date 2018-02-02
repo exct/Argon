@@ -102,6 +102,10 @@ namespace Argon
 
         }
 
+        public static void RemoveRule(string applicationName, string applicationPath)
+        {
+            RemoveRule(applicationName + "__" + applicationPath);
+        }
         public static void RemoveRule(string ruleName)
         {
             while (FirewallPolicy.Rules.Cast<INetFwRule>()

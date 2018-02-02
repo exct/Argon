@@ -61,7 +61,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Sent += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -115,7 +115,7 @@ namespace Argon
                                             && x.DestPort == data.sport)
                                             .First().Recv += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -169,7 +169,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Sent += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -223,7 +223,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Recv += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -277,7 +277,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Sent += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -331,7 +331,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Recv += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -385,7 +385,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Sent += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),
@@ -439,7 +439,7 @@ namespace Argon
                                             && x.DestPort == data.dport)
                                             .First().Recv += data.size;
                                     else {
-                                        Controller.ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
+                                        ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
                                         Controller.NetworkTrafficList.Add(new NetworkTraffic
                                         {
                                             Time = data.TimeStamp.Ticks.NextSecond(),

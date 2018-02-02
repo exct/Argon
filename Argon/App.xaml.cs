@@ -10,10 +10,14 @@ namespace Argon
         {
             Current.Properties["WindowsVersion"] = GetWindowsVersion();
             Controller.Initialize();
-
             var mainWindow = new MainWindow();
-            mainWindow.Show();
 
+            while (true) {
+                if (mainWindow.IsInitialized) {
+                    mainWindow.Show();
+                    break;
+                }
+            }
         }
 
         private string GetWindowsVersion()

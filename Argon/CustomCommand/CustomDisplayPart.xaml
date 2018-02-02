@@ -4,46 +4,62 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Argon"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:core="clr-namespace:ToastNotifications.Core;assembly=ToastNotifications"
                               xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                               mc:Ignorable="d"
-             d:DesignHeight="120" d:DesignWidth="300" Background="{Binding BackgroundColor}">
+             d:DesignHeight="120" d:DesignWidth="300" 
+                              Background="{Binding BackgroundColor}"
+                              SnapsToDevicePixels="True">
     <!--d:DataContext="{d:DesignInstance local:CustomCommandNotification, IsDesignTimeCreatable=False}" >-->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="45" />
+            <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="17" FontWeight="SemiBold" 
-                           Foreground="White" VerticalAlignment="Center" Margin="20 10" TextWrapping="Wrap"/>
-                <Button Grid.Column="1" Width="40" Height="30" VerticalAlignment="Top" Background="Transparent" Focusable="False" BorderThickness="0" Margin="0" Command="{Binding CloseCommand}">
-                    <iconPacks:PackIconMaterial Kind="Close" Height="10" Width="10"
-                                                Foreground="White" />
-                </Button>
-            </Grid>
-            <TextBlock Text="{Binding Message}" FontWeight="Regular" Foreground="White" VerticalAlignment="Top" Margin="20 5 20 20" TextWrapping="Wrap" />
-        </StackPanel>
+        <Expander Background="Transparent" 
+                  BorderThickness="0" Margin="10 0 0 0"
+                  Controls:GroupBoxHelper.HeaderForeground="{DynamicResource IdealForegroundColorBrush}">
+            <Expander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                
+                    <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" 
+                               Foreground="White" VerticalAlignment="Center" Margin="20 10" TextWrapping="Wrap"/>
+                    <Button Grid.Column="1" Width="40" Height="30" VerticalAlignment="Top" Background="Transparent" Focusable="False" BorderThickness="0" Margin="0" Command="{Binding CloseCommand}">
+                        <iconPacks:PackIconMaterial Kind="Close" Height="10" Width="10"
+                                                    Foreground="White" />
+                    </Button>
+                </Grid>
+            </Expander.Header>
+            
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="{Binding Message}" FontWeight="Regular" Foreground="White" VerticalAlignment="Top" Margin="10 0 20 3" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Time}" FontWeight="Light" Foreground="White" VerticalAlignment="Top" Margin="10 0 20 10" TextWrapping="Wrap" HorizontalAlignment="Right"/>
+            </StackPanel>
+        </Expander>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="{Binding Button1}" Margin="20 0 10 10" IsDefault="True" 
+            <Button Grid.Column="0" Margin="20 0 10 10" IsDefault="True" 
                         Command="{Binding Button1Command}" Background="#30000000" 
                         Foreground="White" BorderThickness="0" 
-                        FontSize="13" />
-            <Button Grid.Column="1" Content="{Binding Button2}" Margin="10 0 20 10" IsCancel="True" 
+                        FontSize="13" >
+                <TextBlock Text="{Binding Button1}" FontWeight="Regular"/>
+            </Button>
+            <Button Grid.Column="1" Margin="10 0 20 10" IsCancel="True" 
                     Command="{Binding Button2Command}" Background="#30000000" 
                     Foreground="White" BorderThickness="0"
-                    FontSize="13"/>
+                    FontSize="13">
+                <TextBlock Text="{Binding Button2}" FontWeight="Regular"/>
+            </Button>
         </Grid>
     </Grid>
 </core:NotificationDisplayPart>

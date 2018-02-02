@@ -49,7 +49,7 @@
             <DataGrid x:Name="AppListDataGrid" Grid.Row="1" 
                       ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" 
                       AutoGenerateColumns="False" IsReadOnly="True" 
-                      Margin="10 0" SelectionChanged="AppListGridView_SelectionChanged">
+                      Margin="10 0 0 10" SelectionChanged="AppListGridView_SelectionChanged">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>

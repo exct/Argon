@@ -1,4 +1,5 @@
-﻿using LinqToDB;
+﻿
+using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.Mapping;
 
@@ -12,6 +13,7 @@ namespace Argon
         public ITable<ProcessCounter> ProcessCounters { get { return GetTable<ProcessCounter>(); } }
         public ITable<Config> Config { get { return GetTable<Config>(); } }
         public ITable<WhitelistedApp> CpuSuspendWhitelist { get { return GetTable<WhitelistedApp>(); } }
+        public ITable<Notification> NotificationsList { get { return GetTable<Notification>(); } }
     }
 
 
@@ -89,4 +91,18 @@ namespace Argon
 
     }
 
+    [Table(Name = "Notifications")]
+    public class Notification
+    {
+        [Column(Name = "Time"), NotNull]
+        public long Time { get; set; }
+        [Column(Name = "ApplicationName"), NotNull]
+        public string ApplicationName { get; set; }
+        [Column(Name = "ApplicationPath"), NotNull]
+        public string ApplicationPath { get; set; }
+        [Column(Name = "Type"), NotNull]
+        public int Type { get; set; }
+        [Column(Name = "NotActivated"), NotNull]
+        public int NotActivated { get; set; }
+    }
 }

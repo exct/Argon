@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="Argon.Notifications"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Argon"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="500">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" Width="120" Height="30"
+                Margin="50 0"
+                HorizontalAlignment="Right"
+                Click="MarkAllAsReadButton_Click"
+                Focusable="False"
+                Cursor="Hand"
+                BorderThickness="1">
+            <TextBlock Text="MARK ALL AS READ" FontSize="11" FontWeight="SemiBold"/>
+        </Button>
+
+        <DataGrid Name="NotificationsDataGrid" Grid.Row="1"
+                  ItemsSource="{Binding NotificationsViewSource.View, Mode=OneWay}" 
+                  IsReadOnly="True" Margin="10" AutoGenerateColumns="False" 
+                  HeadersVisibility="None" 
+                  Focusable="False" IsTabStop="False"
+                  VirtualizingPanel.ScrollUnit="Pixel" 
+                  GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <iconPacks:PackIconFontAwesome Name="NotificationIcon" Kind="{Binding IconKind}" 
+                                                           Width="30" Height="30" 
+                                                           VerticalAlignment="Top" VerticalContentAlignment="Top" HorizontalAlignment="Center" 
+                                                           Foreground="{Binding IconColor}" Background="Transparent"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="5">
+                                <TextBlock Text="{Binding Title}"
+                                           Margin="20 5" TextWrapping="Wrap"
+                                           FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{Binding Content}"
+                                           Margin="20 5" TextWrapping="Wrap"
+                                           FontSize="13"/>
+                                <TextBlock Text="{Binding Time}"
+                                           Margin="20 5" TextWrapping="Wrap"
+                                           FontSize="12"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="ActionButton_Click"
+                                    Focusable="False"
+                                    Background="Transparent"
+                                    Cursor="Hand"
+                                    BorderThickness="2"
+                                    Margin="50 0"
+                                    Visibility="{Binding NotActivated, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="{Binding ButtonLabel}" FontSize="13" FontWeight="Regular" />
+                            </Button>
+
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

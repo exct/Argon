@@ -6,6 +6,14 @@ CREATE TABLE IF NOT EXISTS `ProcessCounters` (
 	`Path`	TEXT NOT NULL,
 	`ProcessorLoadPercent`	REAL NOT NULL
 );
+DROP TABLE IF EXISTS `Notifications`;
+CREATE TABLE IF NOT EXISTS `Notifications` (
+	`Time`	INTEGER NOT NULL,
+	`ApplicationName`	TEXT NOT NULL,
+	`ApplicationPath`	TEXT NOT NULL,
+	`Type`	INTEGER NOT NULL,
+	`NotActivated`	INTEGER NOT NULL
+);
 DROP TABLE IF EXISTS `NetworkTraffic`;
 CREATE TABLE IF NOT EXISTS `NetworkTraffic` (
 	`Time`	INTEGER NOT NULL,
@@ -21,6 +29,15 @@ CREATE TABLE IF NOT EXISTS `NetworkTraffic` (
 	`Type`	INTEGER NOT NULL,
 	`ProcessID`	INTEGER
 );
+DROP TABLE IF EXISTS `CpuSuspendWhitelist`;
+CREATE TABLE IF NOT EXISTS `CpuSuspendWhitelist` (
+	`Path`	TEXT NOT NULL UNIQUE
+);
+DROP TABLE IF EXISTS `Config`;
+CREATE TABLE IF NOT EXISTS `Config` (
+	`Name`	TEXT,
+	`Value`	INTEGER
+);
 DROP INDEX IF EXISTS `processor_time_index`;
 CREATE INDEX IF NOT EXISTS `processor_time_index` ON `ProcessCounters` (
 	`time`	DESC
@@ -34,5 +51,9 @@ CREATE INDEX IF NOT EXISTS `network_time_path_index` ON `NetworkTraffic` (
 DROP INDEX IF EXISTS `network_time_index`;
 CREATE INDEX IF NOT EXISTS `network_time_index` ON `NetworkTraffic` (
 	`time`	DESC
+);
+DROP INDEX IF EXISTS `network_applicationname_index`;
+CREATE INDEX IF NOT EXISTS `network_applicationname_index` ON `NetworkTraffic` (
+	`ApplicationName`
 );
 COMMIT;

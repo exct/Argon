@@ -230,7 +230,8 @@ namespace Argon
                     GetChartSeries();
                     AppListDataGrid.SelectedIndex = 0;
                     var selectedItem = (AppUsage)AppListDataGrid.SelectedItem;
-                    UsageChartPushOut(selectedItem.Name, selectedItem.Path);
+                    if (selectedItem != null)
+                        UsageChartPushOut(selectedItem.Name, selectedItem.Path);
                 }));
 
                 threads.Clear();
