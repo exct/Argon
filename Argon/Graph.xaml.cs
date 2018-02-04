@@ -109,7 +109,7 @@ namespace Argon
 
                 Dispatcher.Invoke(new Action(() =>
                 {
-                    IsActive = mainWindow.MainTabControl.SelectedIndex == 0;
+                    IsActive = mainWindow.IsVisible && mainWindow.MainTabControl.SelectedIndex == 0;
                     IsScrolling = ScrollChart.IsMouseCaptureWithin;
                     AtStart = ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks;
                     AtEnd = ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks;

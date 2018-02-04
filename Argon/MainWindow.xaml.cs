@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +16,14 @@ namespace Argon
         public bool NotifyHighCPU { get { return Controller.NotifyHighCpu; } set { Controller.NotifyHighCpu = value; } }
         public bool SuspendHighCPU { get { return Controller.SuspendHighCpu; } set { Controller.SuspendHighCpu = value; } }
         private bool SliderInit = false;
+        private bool TrayClose = false;
+        System.Windows.Forms.NotifyIcon trayIcon = new System.Windows.Forms.NotifyIcon
+        {
+            Icon = System.Drawing.Icon.ExtractAssociatedIcon(
+                        System.Reflection.Assembly.GetEntryAssembly().ManifestModule.Name),
+            Visible = true,
+            Text = "Argon"
+        };
 
         public MainWindow()
         {
@@ -26,6 +34,25 @@ namespace Argon
             WindowButtonCommandsOverlayBehavior = WindowCommandsOverlayBehavior.Always;
             IconOverlayBehavior = WindowCommandsOverlayBehavior.Always;
 
+            var contextMenu = new System.Windows.Forms.ContextMenu();
+            var menuItem = new System.Windows.Forms.MenuItem
+            {
+                Index = 0,
+                Text = "Exit"
+            };
+            menuItem.Click += delegate (object sender, EventArgs e)
+            {
+                TrayClose = true;
+                Close();
+            };
+            trayIcon.DoubleClick += delegate (object sender, EventArgs args)
+            {
+                Show();
+                WindowState = WindowState.Normal;
+            };
+            contextMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] { menuItem });
+            trayIcon.ContextMenu = contextMenu;
+
             Unloaded += OnUnload;
             DataContext = this;
 
@@ -34,6 +61,7 @@ namespace Argon
 
         private void OnUnload(object sender, RoutedEventArgs e)
         {
+            trayIcon.Dispose();
             Controller.OnUnload();
         }
 
@@ -131,7 +159,6 @@ namespace Argon
 
         private void UpdateThresholdValue(int threshold)
         {
-            Debug.Print(threshold.ToString());
             if (!SliderInit) {
                 SliderInit = true;
                 return;
@@ -144,6 +171,14 @@ namespace Argon
                   .Where(x => x.Name == "HighCpuThreshold")
                   .Set(x => x.Value, threshold)
                   .Update();
+        }
+
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!TrayClose) {
+                e.Cancel = true;
+                Hide();
+            }
         }
     }
 }

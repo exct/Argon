@@ -13,6 +13,7 @@
                       Height="600" 
                       Width="1000" 
                       WindowStartupLocation="CenterScreen"
+                      Closing="MetroWindow_Closing"
                       GlowBrush="{DynamicResource AccentColorBrush}">
 
     <Controls:MetroWindow.RightWindowCommands>

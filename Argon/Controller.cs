@@ -27,7 +27,7 @@ namespace Argon
         public static bool BlockNewConnections { get; set; }
         public static bool NotifyHighCpu { get; set; }
         public static bool SuspendHighCpu { get; set; }
-        public static int ProcessorLoadThreshold { get; set; } = 50;
+        public static int ProcessorLoadThreshold { get; set; } = 30;
         public static List<ProcessData> SuspendedProcessList { get; set; } = new List<ProcessData>();
         public static List<NotificationItem> NotificationList { get; set; } = new List<NotificationItem>();
         public static List<WhitelistedApp> CpuSuspendWhitelist = new List<WhitelistedApp>();
@@ -105,7 +105,11 @@ namespace Argon
 
         public static bool SuspendProcess(int PID)
         {
+            if (ProcessDataList.First(x => x.ID == PID).IsProtected)
+                return false;
+
             bool success = false;
+
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 try {
@@ -116,13 +120,14 @@ namespace Argon
                     }
                 }
                 catch { }
-            }));
+            })).Wait();
 
             return success;
         }
 
         public static bool ResumeProcess(int PID)
         {
+
             bool success = false;
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -134,7 +139,7 @@ namespace Argon
                     }
                 }
                 catch { }
-            }));
+            })).Wait();
 
             return success;
         }
@@ -405,8 +410,8 @@ namespace Argon
                             && !CpuSuspendWhitelist.Any(x => x.Path == p.Path)) {
                             if (SuspendHighCpu)
                                 try {
-                                    SuspendProcess(p.ID);
-                                    ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.TerminateWhitelist);
+                                    if (SuspendProcess(p.ID))
+                                        ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.TerminateWhitelist);
                                 }
                                 catch { }
                             else if (NotifyHighCpu) {
