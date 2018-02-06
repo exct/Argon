@@ -9,14 +9,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Controls:MetroAnimatedSingleRowTabControl x:Name="SuspendedProcessesTabControl" SelectionChanged="SuspendedProcessesTabControl_SelectionChanged" Margin="10" >
+        <Controls:MetroAnimatedSingleRowTabControl x:Name="SuspendedProcessesTabControl" SelectionChanged="SuspendedProcessesTabControl_SelectionChanged" Controls:TabControlHelper.Underlined="TabItems">
             <Controls:MetroAnimatedSingleRowTabControl.Resources>
                 <Style TargetType="{x:Type TabPanel}">
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </Controls:MetroAnimatedSingleRowTabControl.Resources>
 
-            <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
+            <TabItem Height="35" Controls:ControlsHelper.HeaderFontSize="20">
                 <TabItem.Header>
                     Suspended
                 </TabItem.Header>
@@ -35,7 +35,7 @@
                                                 Cursor="Hand"
                                                 BorderThickness="0"
                                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                            <iconPacks:PackIconFontAwesome Kind="PlaySolid" Width="15" Height="15" VerticalAlignment="Center" Foreground="#FF00B600" Background="Transparent"/>
+                                            <iconPacks:PackIconFontAwesome Kind="PlaySolid" Width="15" Height="15" Margin="5 0 0 0" VerticalAlignment="Center" Foreground="#FF00B600" Background="Transparent"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -63,7 +63,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Height="30" Controls:ControlsHelper.HeaderFontSize="20">
+            <TabItem Height="35" Controls:ControlsHelper.HeaderFontSize="20">
                 <TabItem.Header>
                     Whitelist
                 </TabItem.Header>
@@ -82,7 +82,7 @@
                                             Cursor="Hand"
                                             BorderThickness="0"
                                             Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                        <iconPacks:PackIconFontAwesome Kind="TimesSolid" Width="10" Height="15" VerticalAlignment="Center" Foreground="White" Background="Transparent"/>
+                                        <iconPacks:PackIconFontAwesome Kind="TimesSolid" Width="10" Height="15" Margin="5 0 0 0" VerticalAlignment="Center" Foreground="White" Background="Transparent"/>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

@@ -51,7 +51,7 @@
 
         <DataGrid Name="AppDetailsDataGrid" Grid.Row="1"
                   ItemsSource="{Binding RulesListViewSource.View, Mode=OneWay}" 
-                  IsReadOnly="True" Margin="10 10" AutoGenerateColumns="False"
+                  IsReadOnly="True" AutoGenerateColumns="False"
                   MouseEnter="AppDetailsDataGrid_MouseEnter"
                   MouseLeave="AppDetailsDataGrid_MouseLeave">
             <DataGrid.Columns>

@@ -203,5 +203,13 @@ namespace Argon
         public static extern UInt32 ResumeThread(IntPtr hThread);
         [DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern UInt32 GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, out byte[] moduleName, UInt32 nSize);
+
+
+        public const int HWND_BROADCAST = 0xffff;
+        public static readonly int WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
+        [DllImport("user32")]
+        public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
+        [DllImport("user32")]
+        public static extern int RegisterWindowMessage(string message);
     }
 }

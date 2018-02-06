@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 
 using LinqToDB;
 
@@ -16,7 +17,7 @@ namespace Argon
         public bool NotifyHighCPU { get { return Controller.NotifyHighCpu; } set { Controller.NotifyHighCpu = value; } }
         public bool SuspendHighCPU { get { return Controller.SuspendHighCpu; } set { Controller.SuspendHighCpu = value; } }
         private bool SliderInit = false;
-        private bool TrayClose = false;
+
         System.Windows.Forms.NotifyIcon trayIcon = new System.Windows.Forms.NotifyIcon
         {
             Icon = System.Drawing.Icon.ExtractAssociatedIcon(
@@ -42,8 +43,7 @@ namespace Argon
             };
             menuItem.Click += delegate (object sender, EventArgs e)
             {
-                TrayClose = true;
-                Close();
+                Application.Current.Shutdown();
             };
             trayIcon.DoubleClick += delegate (object sender, EventArgs args)
             {
@@ -53,14 +53,15 @@ namespace Argon
             contextMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] { menuItem });
             trayIcon.ContextMenu = contextMenu;
 
-            Unloaded += OnUnload;
+            Closed += MainWindow_Closed;
             DataContext = this;
 
             ThresholdSlider.Value = Controller.ProcessorLoadThreshold;
         }
 
-        private void OnUnload(object sender, RoutedEventArgs e)
+        private void MainWindow_Closed(object sender, EventArgs e)
         {
+            trayIcon.Visible = false;
             trayIcon.Dispose();
             Controller.OnUnload();
         }
@@ -175,10 +176,24 @@ namespace Argon
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!TrayClose) {
-                e.Cancel = true;
-                Hide();
+            e.Cancel = true;
+            Hide();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            var source = PresentationSource.FromVisual(this) as HwndSource;
+            source.AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == PInvokes.WM_SHOWME) {
+                Show();
+                WindowState = WindowState.Normal;
             }
+            return IntPtr.Zero;
         }
     }
 }

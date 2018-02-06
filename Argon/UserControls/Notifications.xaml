@@ -25,17 +25,19 @@
 
         <DataGrid Name="NotificationsDataGrid" Grid.Row="1"
                   ItemsSource="{Binding NotificationsViewSource.View, Mode=OneWay}" 
-                  IsReadOnly="True" Margin="10" AutoGenerateColumns="False" 
+                  IsReadOnly="True" AutoGenerateColumns="False" 
                   HeadersVisibility="None" 
                   Focusable="False" IsTabStop="False"
                   VirtualizingPanel.ScrollUnit="Pixel" 
-                  GridLinesVisibility="Horizontal">
+                  GridLinesVisibility="Horizontal" 
+                  VerticalScrollBarVisibility="Disabled"
+                  HorizontalScrollBarVisibility="Disabled">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Width="50">
+                <DataGridTemplateColumn Width="70">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <iconPacks:PackIconFontAwesome Name="NotificationIcon" Kind="{Binding IconKind}" 
-                                                           Width="30" Height="30" 
+                                                           Width="30" Height="30" Margin="15 0 5 0"
                                                            VerticalAlignment="Top" VerticalContentAlignment="Top" HorizontalAlignment="Center" 
                                                            Foreground="{Binding IconColor}" Background="Transparent"/>
                         </DataTemplate>
@@ -46,13 +48,13 @@
                         <DataTemplate>
                             <StackPanel Margin="5">
                                 <TextBlock Text="{Binding Title}"
-                                           Margin="20 5" TextWrapping="Wrap"
+                                           Margin="10 5" TextWrapping="Wrap"
                                            FontWeight="SemiBold" FontSize="14"/>
                                 <TextBlock Text="{Binding Content}"
-                                           Margin="20 5" TextWrapping="Wrap"
+                                           Margin="10 5" TextWrapping="Wrap"
                                            FontSize="13"/>
                                 <TextBlock Text="{Binding Time}"
-                                           Margin="20 5" TextWrapping="Wrap"
+                                           Margin="10 5" TextWrapping="Wrap"
                                            FontSize="12"/>
                             </StackPanel>
                         </DataTemplate>

@@ -1,23 +1,42 @@
 ﻿using System;
 using System.Data.SQLite;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 
 namespace Argon
 {
-    public partial class App : System.Windows.Application
+    public partial class App : Application
     {
+        private static Mutex _mutex = null;
+
         void App_Startup(object sender, StartupEventArgs e)
         {
             Current.Properties["WindowsVersion"] = GetWindowsVersion();
             CreateDbIfNotExist();
             Controller.Initialize();
             var mainWindow = new MainWindow();
-            while (true) {
+            while (true)
                 if (mainWindow.IsInitialized) {
                     mainWindow.Show();
                     break;
                 }
+        }
+
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            _mutex = new Mutex(true, "Argon", out bool createdNew);
+
+            if (createdNew)
+                base.OnStartup(e);
+            else {
+                PInvokes.PostMessage(
+                    (IntPtr)PInvokes.HWND_BROADCAST,
+                    PInvokes.WM_SHOWME,
+                    IntPtr.Zero,
+                    IntPtr.Zero);
+                Current.Shutdown(); //app is already running! exit the application  
             }
         }
 
@@ -70,10 +89,10 @@ namespace Argon
                                 "	`Value`	INTEGER" +
                                 ");" +
                                 "INSERT INTO `Config` VALUES ('NotifyNewApplication',1);" +
-                                "INSERT INTO `Config` VALUES ('BlockNewConnections',1);" +
-                                "INSERT INTO `Config` VALUES ('SuspendHighCpu',1);" +
+                                "INSERT INTO `Config` VALUES ('BlockNewConnections',0);" +
                                 "INSERT INTO `Config` VALUES ('NotifyHighCpu',1);" +
-                                "INSERT INTO `Config` VALUES ('HighCpuThreshold',35);" +
+                                "INSERT INTO `Config` VALUES ('SuspendHighCpu',0);" +
+                                "INSERT INTO `Config` VALUES ('HighCpuThreshold',30);" +
                                 "DROP INDEX IF EXISTS `processor_time_index`;" +
                                 "CREATE INDEX IF NOT EXISTS `processor_time_index` ON `ProcessCounters` (" +
                                 "	`time`	DESC" +
@@ -126,9 +145,9 @@ namespace Argon
 
         private void UnsupportedWindowsVer(string ver)
         {
-            System.Windows.MessageBox.Show("Windows " + ver + " not supported.", "Error",
+            MessageBox.Show("Windows " + ver + " not supported.", "Error",
                             MessageBoxButton.OK, MessageBoxImage.Error,
-                            MessageBoxResult.OK, System.Windows.MessageBoxOptions.DefaultDesktopOnly);
+                            MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
             Current.Shutdown();
         }
 

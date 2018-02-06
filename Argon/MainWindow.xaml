@@ -4,6 +4,7 @@
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                       xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                      xmlns:Behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:local="clr-namespace:Argon"
                       xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
@@ -14,8 +15,14 @@
                       Width="1000" 
                       WindowStartupLocation="CenterScreen"
                       Closing="MetroWindow_Closing"
-                      GlowBrush="{DynamicResource AccentColorBrush}">
-
+                      ShowTitleBar="False"
+                      ShowSystemMenuOnRightClick="False"
+                      GlowBrush="{DynamicResource AccentColorBrush}" >
+    
+    <i:Interaction.Behaviors>
+        <Behaviours:BorderlessWindowBehavior/>
+    </i:Interaction.Behaviors>
+    
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button Click="SettingsButton_Click">
@@ -35,52 +42,65 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" Grid.Row="0" SelectionChanged="MainTabControl_SelectionChanged">
+        <Controls:MetroAnimatedSingleRowTabControl x:Name="MainTabControl" Grid.Row="0" 
+                                                   SelectionChanged="MainTabControl_SelectionChanged"
+                                                   Controls:TabControlHelper.Underlined="TabItems" 
+                                                   TabStripMargin="0 -10 0 10">
             <Controls:MetroAnimatedSingleRowTabControl.Resources>
                 <Style TargetType="{x:Type TabPanel}">
                     <Setter Property="HorizontalAlignment" Value="Center" />
                 </Style>
             </Controls:MetroAnimatedSingleRowTabControl.Resources>
 
-            <TabItem Height="50">
+            <TabItem Height="45">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Graph" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
+                    <TextBlock Cursor="Hand">
+                        <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
+                    </TextBlock>
                 </TabItem.Header>
 
                 <local:Graph/>
                 
             </TabItem>
             
-            <TabItem Height="50">
+            <TabItem Height="45">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Usage" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand">
+                        <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    </TextBlock>
                 </TabItem.Header>
 
                 <local:Usage/>
 
             </TabItem>
             
-            <TabItem Height="50">
+            <TabItem Height="45">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Firewall" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand">
+                        <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    </TextBlock>
                 </TabItem.Header>
 
                 <local:FirewallUI x:Name="FirewallUI"/>
 
             </TabItem>
 
-            <TabItem Height="50">
+            <TabItem Height="45">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Suspended Processes" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand">
+                        <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" ToolTip="Suspended Processes" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    </TextBlock>
                 </TabItem.Header>
 
                 <local:SuspendedProcesses x:Name="SuspendedProcesses"/>
 
             </TabItem>
 
-            <TabItem Height="50">
+            <TabItem Height="45">
                 <TabItem.Header>
-                    <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" Cursor="Hand" ToolTip="Notifications" ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand">
+                        <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    </TextBlock>
                 </TabItem.Header>
 
                 <local:Notifications x:Name="Notifications"/>

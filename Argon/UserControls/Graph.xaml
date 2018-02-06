@@ -106,9 +106,9 @@
                     </TextBlock.LayoutTransform>
                 </TextBlock>
             </Expander.Header>
-            
+
             <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl" SelectionChanged="GraphTabControl_SelectionChanged">
-                
+
                 <Controls:MetroAnimatedSingleRowTabControl.Resources>
                     <Style TargetType="{x:Type TabPanel}">
                         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -192,11 +192,10 @@
                             ScrollMode="X" 
                             ScrollHorizontalFrom="{Binding From, Mode=OneWay}"
                             ScrollHorizontalTo="{Binding To, Mode=OneWay}"
-                            LostMouseCapture="CartesianChart_LostMouseCapture"
-                            ScrollBarFill="#25FFFFFF"
+                            LostMouseCapture="CartesianChart_LostMouseCapture" Cursor="Hand"
                             DataTooltip="{x:Null}"
                             Hoverable="False"
-                            Margin="20 10">
+                            Margin="-68 0 0 0">
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
                     <Setter Property="IsEnabled" Value="False"/>
@@ -207,6 +206,12 @@
                     <Setter Property="LineSmoothness" Value="0"/>
                 </Style>
             </lvc:CartesianChart.Resources>
+            <lvc:CartesianChart.ScrollBarFill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#00000000" Offset="0"/>
+                    <GradientStop Color="#509000FF" Offset="0.8"/>
+                </LinearGradientBrush>
+            </lvc:CartesianChart.ScrollBarFill>
             <lvc:CartesianChart.Series>
                 <lvc:LineSeries Values="{Binding SentValues}"
                                 Visibility="{Binding SendSeriesVisibility, Converter={StaticResource BoolToVis}}"

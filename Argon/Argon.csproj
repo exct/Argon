@@ -65,7 +65,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>atom.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\atom.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -244,38 +244,38 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CustomCommand\CustomDisplayPart.xaml.cs">
+    <Compile Include="Notification\CustomDisplayPart.xaml.cs">
       <DependentUpon>CustomDisplayPart.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomCommand\NotificationExtensions.cs" />
-    <Compile Include="CustomCommand\CustomNotification.cs" />
-    <Compile Include="CustomCommand\RelayCommand.cs" />
+    <Compile Include="Notification\NotificationExtensions.cs" />
+    <Compile Include="Notification\CustomNotification.cs" />
+    <Compile Include="Notification\RelayCommand.cs" />
     <Compile Include="EtwMonitor.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Firewall.cs" />
-    <Compile Include="FirewallUI.xaml.cs">
+    <Compile Include="UserControls\FirewallUI.xaml.cs">
       <DependentUpon>FirewallUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Notifications.xaml.cs">
+    <Compile Include="UserControls\Notifications.xaml.cs">
       <DependentUpon>Notifications.xaml</DependentUpon>
     </Compile>
     <Compile Include="PInvokes.cs" />
-    <Compile Include="SuspendedProcesses.xaml.cs">
+    <Compile Include="UserControls\SuspendedProcesses.xaml.cs">
       <DependentUpon>SuspendedProcesses.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests.cs" />
-    <Compile Include="Usage.xaml.cs">
+    <Compile Include="UserControls\Usage.xaml.cs">
       <DependentUpon>Usage.xaml</DependentUpon>
     </Compile>
-    <Page Include="CustomCommand\CustomDisplayPart.xaml">
+    <Page Include="Notification\CustomDisplayPart.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="FirewallUI.xaml">
+    <Page Include="UserControls\FirewallUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Graph.xaml">
+    <Page Include="UserControls\Graph.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -288,14 +288,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="EntityClasses.cs" />
-    <Compile Include="Graph.xaml.cs">
+    <Compile Include="UserControls\Graph.xaml.cs">
       <DependentUpon>Graph.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Notifications.xaml">
+    <Page Include="UserControls\Notifications.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -307,11 +307,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SuspendedProcesses.xaml">
+    <Page Include="UserControls\SuspendedProcesses.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Usage.xaml">
+    <Page Include="UserControls\Usage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -361,13 +361,13 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="atom.ico" />
+    <Resource Include="Resources\atom.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="atom.png" />
+    <None Include="Resources\atom.png" />
   </ItemGroup>
   <ItemGroup>
-    <SplashScreen Include="atom%400,5x.png" />
+    <SplashScreen Include="Resources\atom%400,5x.png" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NetFwTypeLib">

@@ -49,12 +49,12 @@
             <DataGrid x:Name="AppListDataGrid" Grid.Row="1" 
                       ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" 
                       AutoGenerateColumns="False" IsReadOnly="True" 
-                      Margin="10 0 0 10" SelectionChanged="AppListGridView_SelectionChanged">
+                      SelectionChanged="AppListGridView_SelectionChanged">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding Icon}" Height="24" Width="24" />
+                                <Image Source="{Binding Icon}" Height="24" Width="24" Margin="10 0 0 0" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -116,7 +116,7 @@
         </Grid>
         <DataGrid Name="AppDetailsDataGrid" Grid.Row="1" Grid.Column="1" 
                   ItemsSource="{Binding AppDetailsViewSource.View, Mode=OneWay}" 
-                  IsReadOnly="True" Margin="10 0" AutoGenerateColumns="False">
+                  IsReadOnly="True" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Destination" Binding="{Binding DestinationIP}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" />
                 <DataGridTextColumn Header="Port" Binding="{Binding DestinationPort}" CellStyle="{StaticResource CellStyle}" Width="*" />

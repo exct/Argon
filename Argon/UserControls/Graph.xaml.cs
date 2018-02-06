@@ -103,18 +103,17 @@ namespace Argon
             {
                 var NetGraphValues = GetLast2NetValues();
                 var ProcGraphValues = GetLast2ProcValues();
-                var AppList = new ObservableCollection<App>();
                 bool IsScrolling, AtStart, AtEnd, IsActive, IsExpanded;
                 IsScrolling = AtStart = AtEnd = IsActive = IsExpanded = false;
 
-                Dispatcher.Invoke(new Action(() =>
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
                     IsActive = mainWindow.IsVisible && mainWindow.MainTabControl.SelectedIndex == 0;
                     IsScrolling = ScrollChart.IsMouseCaptureWithin;
                     AtStart = ScrollChart.ScrollHorizontalTo > DateTime.Now.AddSeconds(-10).Ticks;
                     AtEnd = ScrollChart.ScrollHorizontalFrom < DateTime.Now.AddSeconds(-duration).Ticks;
                     IsExpanded = DataGridExpander.IsExpanded;
-                }));
+                })).Wait();
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
