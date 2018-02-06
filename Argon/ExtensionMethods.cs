@@ -19,19 +19,16 @@ namespace Argon
         {
 
             if (value < 0) { return "-" + AddSizeSuffix(-value); }
-            if (value == 0) { return "0  B"; }
 
-            int i = (int)Math.Log(value, 1024);
-            decimal adjustedSize = (decimal)value / (1L << (i * 10));
+            int i = 0;
+            double adjustedSize = value;
 
-            if (Math.Round(adjustedSize, i < 2 ? 0 : 2) >= 1000) {
+            while (adjustedSize >= 1000) {
                 i += 1;
-                adjustedSize /= 1024;
+                adjustedSize /= 1000;
             }
 
-            return string.Format("{0:n" + (i < 2 ? 0 : 2) + "} {1}",
-                adjustedSize,
-                SizeSuffixes[i]);
+            return string.Format("{0} {1}", Math.Round(adjustedSize, i > 0 ? i - 1 : 0), SizeSuffixes[i]);
         }
 
         public static long NextSecond(this long i)

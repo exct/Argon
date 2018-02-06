@@ -83,7 +83,11 @@
                           MinValue="{Binding From, Mode=OneWay}" MaxValue="{Binding To, Mode=OneWay}" />
                 </lvc:CartesianChart.AxisX>
                 <lvc:CartesianChart.AxisY>
-                    <lvc:Axis Title="Network Transfer Rate" MinValue="0" FontSize="14" IsMerged="True" LabelFormatter="{Binding NetLabelFormatter, Mode=OneTime}" Foreground="#CC88EECC" />
+                    <lvc:Axis Title="Network Transfer Rate" MinValue="0" FontSize="14" IsMerged="True" LabelFormatter="{Binding NetLabelFormatter, Mode=OneTime}" Foreground="#CC88EECC">
+                        <lvc:Axis.Separator>
+                            <lvc:Separator IsEnabled="False" Step="500000"></lvc:Separator> <!--1048576-->
+                        </lvc:Axis.Separator>
+                    </lvc:Axis>
                     <lvc:Axis Title="Processor Load %" Position="RightTop" MinValue="0" MaxValue="100" FontSize="14" Foreground="#CCFF0077">
                         <lvc:Axis.Separator>
                             <lvc:Separator IsEnabled="False" Step="20" Height="100"></lvc:Separator>
@@ -195,7 +199,7 @@
                             LostMouseCapture="CartesianChart_LostMouseCapture" Cursor="Hand"
                             DataTooltip="{x:Null}"
                             Hoverable="False"
-                            Margin="-68 0 0 0">
+                            Margin="-15 0 0 0">
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
                     <Setter Property="IsEnabled" Value="False"/>
