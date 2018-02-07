@@ -96,7 +96,7 @@
             <lvc:PieChart Name="UsagePieChart" Grid.Row="0"
                           Hoverable="False" DataTooltip="{x:Null}"
                           DataClick="UsagePieChart_DataClick"
-                          DisableAnimations="True"/>
+                          DisableAnimations="True" Cursor="Hand"/>
             
             <WrapPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Margin="5 15">

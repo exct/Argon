@@ -85,7 +85,8 @@
                 <lvc:CartesianChart.AxisY>
                     <lvc:Axis Title="Network Transfer Rate" MinValue="0" FontSize="14" IsMerged="True" LabelFormatter="{Binding NetLabelFormatter, Mode=OneTime}" Foreground="#CC88EECC">
                         <lvc:Axis.Separator>
-                            <lvc:Separator IsEnabled="False" Step="500000"></lvc:Separator> <!--1048576-->
+                            <lvc:Separator IsEnabled="False" Step="500000"></lvc:Separator>
+                            <!--1048576-->
                         </lvc:Axis.Separator>
                     </lvc:Axis>
                     <lvc:Axis Title="Processor Load %" Position="RightTop" MinValue="0" MaxValue="100" FontSize="14" Foreground="#CCFF0077">
@@ -98,9 +99,20 @@
         </Grid>
 
         <Expander Name="DataGridExpander" Grid.Row="0" Grid.Column="1" 
-                  ExpandDirection="Left" Background="Transparent" 
-                  BorderThickness="0" Margin="-10 0 10 0"
+                  ExpandDirection="Left" Cursor="Hand"
+                  BorderThickness="0 0 10 0" Margin="-10 0 0 0"
                   Controls:GroupBoxHelper.HeaderForeground="{DynamicResource IdealForegroundColorBrush}">
+            <Expander.BorderBrush>
+                <LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
+                    <GradientStop Color="#509000FF" Offset="0.3"/>
+                </LinearGradientBrush>
+            </Expander.BorderBrush>
+            <Expander.Background>
+                <LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
+                    <GradientStop Color="#00000000" Offset="0"/>
+                    <GradientStop Color="#509000FF" Offset="1"/>
+                </LinearGradientBrush>
+            </Expander.Background>
             <Expander.Header>
                 <TextBlock Text="Per-application Data" Margin="0 5 0 0" Cursor="Hand">
                     <TextBlock.LayoutTransform>
@@ -111,7 +123,9 @@
                 </TextBlock>
             </Expander.Header>
 
-            <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl" SelectionChanged="GraphTabControl_SelectionChanged">
+            <Controls:MetroAnimatedSingleRowTabControl x:Name="GraphTabControl" 
+                                                       SelectionChanged="GraphTabControl_SelectionChanged"
+                                                       Cursor="Arrow">
 
                 <Controls:MetroAnimatedSingleRowTabControl.Resources>
                     <Style TargetType="{x:Type TabPanel}">
@@ -199,7 +213,9 @@
                             LostMouseCapture="CartesianChart_LostMouseCapture" Cursor="Hand"
                             DataTooltip="{x:Null}"
                             Hoverable="False"
-                            Margin="-15 0 0 0">
+                            Margin="-15 0 0 0"
+                            ToolTip="Drag highlighted area to scroll"
+                            ToolTipService.InitialShowDelay="0">
             <lvc:CartesianChart.Resources>
                 <Style TargetType="lvc:Separator">
                     <Setter Property="IsEnabled" Value="False"/>
