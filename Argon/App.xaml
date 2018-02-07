@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:Argon"
              xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              Startup="App_Startup">
     <Application.Resources>
         <ResourceDictionary>
@@ -55,7 +56,7 @@
             <local:DataSizeConverter x:Key="AddSizeSuffix"/>
             
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-
+            
         </ResourceDictionary>
 
     </Application.Resources>

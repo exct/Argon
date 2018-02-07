@@ -35,7 +35,7 @@
                                                 Cursor="Hand"
                                                 BorderThickness="0"
                                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                            <iconPacks:PackIconFontAwesome Kind="PlaySolid" Width="15" Height="15" Margin="5 0 0 0" VerticalAlignment="Center" Foreground="#FF00B600" Background="Transparent"/>
+                                            <iconPacks:PackIconFontAwesome Kind="PlaySolid" Width="15" Height="15" Margin="10 0" VerticalAlignment="Center" Foreground="#FF00B600" Background="Transparent"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -50,7 +50,7 @@
                                                 Cursor="Hand"
                                                 BorderThickness="0"
                                                 Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                            <iconPacks:PackIconFontAwesome Kind="TimesSolid" Width="15" Height="15" VerticalAlignment="Center" Foreground="#FFB60000" Background="Transparent"/>
+                                            <iconPacks:PackIconFontAwesome Kind="TimesSolid" Width="15" Height="15" Margin="10 0" VerticalAlignment="Center" Foreground="#FFB60000" Background="Transparent"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -82,7 +82,7 @@
                                             Cursor="Hand"
                                             BorderThickness="0"
                                             Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                        <iconPacks:PackIconFontAwesome Kind="TimesSolid" Width="10" Height="15" Margin="5 0 0 0" VerticalAlignment="Center" Foreground="White" Background="Transparent"/>
+                                        <iconPacks:PackIconFontAwesome Kind="TimesSolid" Width="10" Height="15" Margin="10 0" VerticalAlignment="Center" Foreground="White" Background="Transparent"/>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

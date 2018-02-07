@@ -45,10 +45,11 @@ namespace Argon
             {
                 Application.Current.Shutdown();
             };
-            trayIcon.DoubleClick += delegate (object sender, EventArgs args)
+            trayIcon.Click += delegate (object sender, EventArgs args)
             {
                 Show();
                 WindowState = WindowState.Normal;
+                Activate();
             };
             contextMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] { menuItem });
             trayIcon.ContextMenu = contextMenu;
@@ -192,6 +193,7 @@ namespace Argon
             if (msg == PInvokes.WM_SHOWME) {
                 Show();
                 WindowState = WindowState.Normal;
+                Activate();
             }
             return IntPtr.Zero;
         }

@@ -29,9 +29,7 @@
                   HeadersVisibility="None" 
                   Focusable="False" IsTabStop="False"
                   VirtualizingPanel.ScrollUnit="Pixel" 
-                  GridLinesVisibility="Horizontal" 
-                  VerticalScrollBarVisibility="Disabled"
-                  HorizontalScrollBarVisibility="Disabled">
+                  GridLinesVisibility="Horizontal">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Width="70">
                     <DataGridTemplateColumn.CellTemplate>

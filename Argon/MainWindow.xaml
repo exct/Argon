@@ -26,11 +26,11 @@
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button Click="SettingsButton_Click">
-                    <Rectangle Width="16" Height="16"
+                    <Rectangle Width="18" Height="18"
                                Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                               ToolTip="Settings">
+                               ToolTip="Settings" ToolTipService.InitialShowDelay="0">
                         <Rectangle.OpacityMask>
-                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_cog}" />
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_settings}" />
                         </Rectangle.OpacityMask>
                     </Rectangle>
             </Button>
@@ -54,8 +54,8 @@
 
             <TabItem Height="45">
                 <TabItem.Header>
-                    <TextBlock Cursor="Hand">
-                        <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" ToolTip="Graph" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
+                    <TextBlock Cursor="Hand" ToolTip="Graph" ToolTipService.InitialShowDelay="0">
+                        <iconPacks:PackIconFontAwesome Kind="ChartAreaSolid" Width="100" Height="30" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}" />
                     </TextBlock>
                 </TabItem.Header>
 
@@ -65,8 +65,8 @@
             
             <TabItem Height="45">
                 <TabItem.Header>
-                    <TextBlock Cursor="Hand">
-                        <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" ToolTip="Usage" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand" ToolTip="Usage" ToolTipService.InitialShowDelay="0">
+                        <iconPacks:PackIconFontAwesome Kind="ChartPieSolid" Width="100" Height="30" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                     </TextBlock>
                 </TabItem.Header>
 
@@ -76,8 +76,8 @@
             
             <TabItem Height="45">
                 <TabItem.Header>
-                    <TextBlock Cursor="Hand">
-                        <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" ToolTip="Firewall" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand" ToolTip="Firewall" ToolTipService.InitialShowDelay="0">
+                        <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="100" Height="30" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                     </TextBlock>
                 </TabItem.Header>
 
@@ -87,8 +87,8 @@
 
             <TabItem Height="45">
                 <TabItem.Header>
-                    <TextBlock Cursor="Hand">
-                        <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" ToolTip="Suspended Processes" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand" ToolTip="Suspended Processes" ToolTipService.InitialShowDelay="0">
+                        <iconPacks:PackIconFontAwesome Kind="MoonSolid" Width="100" Height="30" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                     </TextBlock>
                 </TabItem.Header>
 
@@ -98,8 +98,8 @@
 
             <TabItem Height="45">
                 <TabItem.Header>
-                    <TextBlock Cursor="Hand">
-                        <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" ToolTip="Notifications" ToolTipService.InitialShowDelay="0" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
+                    <TextBlock Cursor="Hand" ToolTip="Notifications" ToolTipService.InitialShowDelay="0">
+                        <iconPacks:PackIconFontAwesome Kind="BellSolid" Width="100" Height="30" VerticalAlignment="Top" Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}, Path=(TextElement.Foreground)}"/>
                     </TextBlock>
                 </TabItem.Header>
 

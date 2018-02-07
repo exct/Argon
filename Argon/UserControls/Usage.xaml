@@ -33,7 +33,9 @@
                                          Margin="10 1"
                                          SelectedDateFormat="Long"
                                          SelectedTimeFormat="Short"
-                                         Focusable="False"/>
+                                         Focusable="False"
+                                         ToolTip="Starting date/time"
+                                         ToolTipService.InitialShowDelay="0"/>
                 
                 <Controls:DateTimePicker Name="DateTimePickerTo" 
                                          SelectedDate="{Binding DateTo, Mode=TwoWay}" 
@@ -43,7 +45,9 @@
                                          Margin="10 1"
                                          SelectedDateFormat="Long"
                                          SelectedTimeFormat="Short"
-                                         Focusable="False"/>
+                                         Focusable="False"
+                                         ToolTip="Ending date/time"
+                                         ToolTipService.InitialShowDelay="0"/>
             </WrapPanel>
 
             <DataGrid x:Name="AppListDataGrid" Grid.Row="1" 
