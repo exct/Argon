@@ -48,19 +48,19 @@ namespace Argon
                             lock (Controller.NetworkTrafficList)
                                 lock (Controller.ProcessDataList)
                                     if (Controller.NetworkTrafficList.Any(x => x.ProcessID == data.ProcessID
-                                            && x.Time == data.TimeStamp.Ticks.NextSecond()
-                                            && x.Type == 1
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport))
+                                            & x.Time == data.TimeStamp.Ticks.NextSecond()
+                                            & x.Type == 1
+                                            & x.SourceAddr == data.saddr.ToString()
+                                            & x.SourcePort == data.sport
+                                            & x.DestAddr == data.daddr.ToString()
+                                            & x.DestPort == data.dport))
                                         Controller.NetworkTrafficList.Where(x => x.ProcessID == data.ProcessID
-                                            && x.Time == data.TimeStamp.Ticks.NextSecond()
-                                            && x.Type == 1
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport)
+                                            & x.Time == data.TimeStamp.Ticks.NextSecond()
+                                            & x.Type == 1
+                                            & x.SourceAddr == data.saddr.ToString()
+                                            & x.SourcePort == data.sport
+                                            & x.DestAddr == data.daddr.ToString()
+                                            & x.DestPort == data.dport)
                                             .First().Sent += data.size;
                                     else {
                                         ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
@@ -114,14 +114,14 @@ namespace Argon
                                             && x.Type == 1
                                             && x.SourceAddr == data.daddr.ToString()
                                             && x.SourcePort == data.dport
-                                            && x.DestAddr == data.sport.ToString()
+                                            && x.DestAddr == data.saddr.ToString()
                                             && x.DestPort == data.sport))
                                         Controller.NetworkTrafficList.Where(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 1
                                             && x.SourceAddr == data.daddr.ToString()
                                             && x.SourcePort == data.dport
-                                            && x.DestAddr == data.sport.ToString()
+                                            && x.DestAddr == data.saddr.ToString()
                                             && x.DestPort == data.sport)
                                             .First().Recv += data.size;
                                     else {
@@ -236,17 +236,17 @@ namespace Argon
                                     if (Controller.NetworkTrafficList.Any(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 2
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport))
+                                            && x.SourceAddr == data.daddr.ToString()
+                                            && x.SourcePort == data.dport
+                                            && x.DestAddr == data.saddr.ToString()
+                                            && x.DestPort == data.sport))
                                         Controller.NetworkTrafficList.Where(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 2
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport)
+                                            && x.SourceAddr == data.daddr.ToString()
+                                            && x.SourcePort == data.dport
+                                            && x.DestAddr == data.saddr.ToString()
+                                            && x.DestPort == data.sport)
                                             .First().Recv += data.size;
                                     else {
                                         ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
@@ -360,17 +360,17 @@ namespace Argon
                                     if (Controller.NetworkTrafficList.Any(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 3
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport))
+                                            && x.SourceAddr == data.daddr.ToString()
+                                            && x.SourcePort == data.dport
+                                            && x.DestAddr == data.saddr.ToString()
+                                            && x.DestPort == data.sport))
                                         Controller.NetworkTrafficList.Where(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 3
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport)
+                                            && x.SourceAddr == data.daddr.ToString()
+                                            && x.SourcePort == data.dport
+                                            && x.DestAddr == data.saddr.ToString()
+                                            && x.DestPort == data.sport)
                                             .First().Recv += data.size;
                                     else {
                                         ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();
@@ -484,17 +484,17 @@ namespace Argon
                                     if (Controller.NetworkTrafficList.Any(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 4
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport))
+                                            && x.SourceAddr == data.daddr.ToString()
+                                            && x.SourcePort == data.dport
+                                            && x.DestAddr == data.saddr.ToString()
+                                            && x.DestPort == data.sport))
                                         Controller.NetworkTrafficList.Where(x => x.ProcessID == data.ProcessID
                                             && x.Time == data.TimeStamp.Ticks.NextSecond()
                                             && x.Type == 4
-                                            && x.SourceAddr == data.saddr.ToString()
-                                            && x.SourcePort == data.sport
-                                            && x.DestAddr == data.daddr.ToString()
-                                            && x.DestPort == data.dport)
+                                            && x.SourceAddr == data.daddr.ToString()
+                                            && x.SourcePort == data.dport
+                                            && x.DestAddr == data.saddr.ToString()
+                                            && x.DestPort == data.sport)
                                             .First().Recv += data.size;
                                     else {
                                         ProcessData p = Controller.ProcessDataList.Where(x => x.ID == data.ProcessID).First();

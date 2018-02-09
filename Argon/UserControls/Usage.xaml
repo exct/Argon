@@ -7,7 +7,7 @@
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
-             mc:Ignorable="d">
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="300">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -23,7 +23,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
+
             <WrapPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10 5">
                 <Controls:DateTimePicker Name="DateTimePickerFrom"
                                          SelectedDate="{Binding DateFrom, Mode=TwoWay}" 
@@ -36,7 +36,7 @@
                                          Focusable="False"
                                          ToolTip="Starting date/time"
                                          ToolTipService.InitialShowDelay="0"/>
-                
+
                 <Controls:DateTimePicker Name="DateTimePickerTo" 
                                          SelectedDate="{Binding DateTo, Mode=TwoWay}" 
                                          SelectedTime="{Binding TimeTo, Mode=TwoWay}"
@@ -53,7 +53,8 @@
             <DataGrid x:Name="AppListDataGrid" Grid.Row="1" 
                       ItemsSource="{Binding AppListViewSource.View, Mode=OneWay}" 
                       AutoGenerateColumns="False" IsReadOnly="True" 
-                      SelectionChanged="AppListGridView_SelectionChanged">
+                      SelectionChanged="AppListGridView_SelectionChanged" 
+                      SelectionMode="Single">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
@@ -92,12 +93,12 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            
+
             <lvc:PieChart Name="UsagePieChart" Grid.Row="0"
                           Hoverable="False" DataTooltip="{x:Null}"
                           DataClick="UsagePieChart_DataClick"
                           DisableAnimations="True" Cursor="Hand"/>
-            
+
             <WrapPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Margin="5 15">
                 <RadioButton GroupName="ChartSelector" Content="Network Total" Margin="5 2"
@@ -115,18 +116,32 @@
                 <RadioButton GroupName="ChartSelector" Content="Processor Average" Margin="5 2"
                              FontSize="13" FontWeight="Medium"
                              IsChecked="{Binding ProcAvg, Mode=OneWayToSource, FallbackValue=false}"
-                             Checked="RadioButton_Checked"/>            
+                             Checked="RadioButton_Checked"/>
             </WrapPanel>
         </Grid>
         <DataGrid Name="AppDetailsDataGrid" Grid.Row="1" Grid.Column="1" 
                   ItemsSource="{Binding AppDetailsViewSource.View, Mode=OneWay}" 
-                  IsReadOnly="True" AutoGenerateColumns="False">
+                  IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Destination" Binding="{Binding DestinationIP}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" />
+                <DataGridTemplateColumn Header="Destination" CellStyle="{StaticResource CellStyle}" SortMemberPath="DestinationIP">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DestinationIP}" HorizontalAlignment="Right" ToolTip="Querying info..." ToolTipOpening="TextBlock_ToolTipOpening" ToolTipService.ShowDuration="10000" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Port" Binding="{Binding DestinationPort}" CellStyle="{StaticResource CellStyle}" Width="*" />
-                <DataGridTextColumn Header="Source" Binding="{Binding SourceIP}" ElementStyle="{StaticResource CellRightAlign}" CellStyle="{StaticResource CellStyle}" />
+                <DataGridTemplateColumn Header="Source" CellStyle="{StaticResource CellStyle}" SortMemberPath="SourceIP">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding SourceIP}" HorizontalAlignment="Right" ToolTip="Querying info..." ToolTipOpening="TextBlock_ToolTipOpening" ToolTipService.ShowDuration="10000"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Port" Binding="{Binding SourcePort}" CellStyle="{StaticResource CellStyle}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
+        <Controls:ProgressRing Name="ProgressRing2" Grid.Row="1" Grid.Column="1" Height="100" Visibility="Collapsed"/>
+
     </Grid>
 </UserControl>

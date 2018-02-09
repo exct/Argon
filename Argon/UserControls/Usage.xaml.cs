@@ -187,7 +187,6 @@ namespace Argon
         private void DateTimePicker_SelectedDateChanged()
         {
             KillRunningThreads();
-            //bool isActive = mainWindow.MainTabControl.SelectedIndex == 1;
 
             SortDescription sd;
             if (AppListViewSource.View.SortDescriptions.Any())
@@ -200,7 +199,7 @@ namespace Argon
             AppDetailsViewSource.Source = new List<AppDetail>();
             UsagePieChart.Series = null;
 
-            if (_dateFrom > _dateTo || _dateFrom > DateTime.Now) {
+            if (_dateFrom > _dateTo | _dateFrom > DateTime.Now) {
                 ProgressRing1.Visibility = Visibility.Collapsed;
                 ErrorInvalidDateRange.Visibility = Visibility.Visible;
                 return;
@@ -213,8 +212,6 @@ namespace Argon
             Task.Run(() =>
             {
                 threads.Add(Thread.CurrentThread);
-                //if (!isActive)
-                //    Thread.Sleep(3000);
 
                 AppList = GetApplicationList();
 
@@ -310,10 +307,13 @@ namespace Argon
 
         protected void GetAppDetails(AppUsage a)
         {
+            KillRunningThreads();
+            AppDetailsViewSource.Source = null;
+            ProgressRing2.Visibility = Visibility.Visible;
+
             Task.Run(() =>
             {
                 threads.Add(Thread.CurrentThread);
-
                 List<AppDetail> details;
                 using (var db = new ArgonDB()) {
                     details = db.NetworkTraffic
@@ -329,6 +329,7 @@ namespace Argon
 
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    ProgressRing2.Visibility = Visibility.Collapsed;
                     AppDetailsViewSource.Source = details;
                 }));
 
@@ -359,6 +360,27 @@ namespace Argon
             public int SourcePort { get; set; }
             public string DestinationIP { get; set; }
             public int DestinationPort { get; set; }
+        }
+
+        private void TextBlock_ToolTipOpening(object sender, ToolTipEventArgs e)
+        {
+            var ip = ((TextBlock)sender).Text;
+            Task.Run(() =>
+            {
+                string hostname = "";
+                string whois = "";
+
+                Task getHostname = Task.Factory.StartNew(() => hostname = ip.GetHostname() ?? ip);
+                Task getWhois = Task.Factory.StartNew(() => whois = ip.GetWhois());
+                getHostname.Wait();
+                getWhois.Wait();
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                 {
+                     ((TextBlock)sender).ToolTip = hostname + Environment.NewLine + whois;
+                 }));
+            });
+
         }
     }
 }

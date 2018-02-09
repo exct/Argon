@@ -47,7 +47,7 @@ namespace Argon
         });
         private static ManagementClass mgmtClass = new ManagementClass("Win32_Service");
         private static ConcurrentBag<Process> ProcessList = new ConcurrentBag<Process>();
-        private static System.Timers.Timer timer = new System.Timers.Timer(1000);
+        private static Timer timer = new Timer(1000);
         private static float TotalCpuLoadPct = 0;
         private static long TotalCpuTime = 0;
         private static long CurrentTime;
@@ -404,20 +404,24 @@ namespace Argon
                     if (p.ProcessorTimeDiff <= 0)
                         p.ProcessorLoadPercent = 0;
                     else {
-                        p.ProcessorLoadPercent = Math.Round((p.ProcessorTimeDiff / (double)TotalCpuTime * TotalCpuLoadPct), 2);
+                        p.ProcessorLoadPercent = Math.Round(((p.ProcessorTimeDiff / (double)TotalCpuTime) * TotalCpuLoadPct), 2);
+
+                        if (p.ProcessorLoadPercent > 100)
+                            p.ProcessorLoadPercent = 100;
+
                         if ((NotifyHighCpu || SuspendHighCpu)
                             && p.ProcessorLoadPercent > ProcessorLoadThreshold
                             && !CpuSuspendWhitelist.Any(x => x.Path == p.Path)) {
                             if (SuspendHighCpu)
                                 try {
                                     if (SuspendProcess(p.ID))
-                                        ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.TerminateWhitelist);
+                                        ShowNotification(p.ID, p.Name, p.Path, ActionType.TerminateWhitelist);
                                 }
                                 catch { }
                             else if (NotifyHighCpu) {
                                 if (!NotificationList.Any(x => x.NotActivated && x.Type == (int)ActionType.SuspendWhitelist
                                                           && x.ApplicationPath == p.Path))
-                                    ShowNotification(p.ID, p.Name, p.Path, CustomNotification.ActionType.SuspendWhitelist);
+                                    ShowNotification(p.ID, p.Name, p.Path, ActionType.SuspendWhitelist);
                             }
                         }
                     }
@@ -441,8 +445,9 @@ namespace Argon
                                 });
 
                     lock (NetworkTrafficList) {
-                        foreach (NetworkTraffic n in NetworkTrafficList)
+                        foreach (NetworkTraffic n in NetworkTrafficList) {
                             db.InsertAsync(n);
+                        }
                         NetworkTrafficList.Clear();
                     }
                     db.CommitTransaction();
@@ -459,13 +464,11 @@ namespace Argon
                          .ToList();
         }
 
-
         public static void OnUnload()
         {
             EtwMonitor.EtwSession.Dispose();
             _notifier.Dispose();
         }
-
 
     }
 

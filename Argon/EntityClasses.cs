@@ -9,11 +9,11 @@ namespace Argon
     {
         public ArgonDB() : base("ArgonDB") { }
 
+        public ITable<WhitelistedApp> CpuSuspendWhitelist { get { return GetTable<WhitelistedApp>(); } }
         public ITable<NetworkTraffic> NetworkTraffic { get { return GetTable<NetworkTraffic>(); } }
         public ITable<ProcessCounter> ProcessCounters { get { return GetTable<ProcessCounter>(); } }
-        public ITable<Config> Config { get { return GetTable<Config>(); } }
-        public ITable<WhitelistedApp> CpuSuspendWhitelist { get { return GetTable<WhitelistedApp>(); } }
         public ITable<Notification> NotificationsList { get { return GetTable<Notification>(); } }
+        public ITable<Config> Config { get { return GetTable<Config>(); } }
     }
 
 
