@@ -1,2 +1,6 @@
-# Argon
-Per-application network and processor usage monitoring with automated rule-based blocking of network and processor usage. Built on Event Tracing for Windows.
+![](https://github.com/exct/Argon/blob/master/Graph.png)
+![](https://github.com/exct/Argon/blob/master/Usage.png)
+![](https://github.com/exct/Argon/blob/master/Firewall.png)
+![](https://github.com/exct/Argon/blob/master/Suspended.png)
+![](https://github.com/exct/Argon/blob/master/Notifications.png)
+![](https://github.com/exct/Argon/blob/master/Toast.png)
